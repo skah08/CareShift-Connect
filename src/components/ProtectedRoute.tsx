@@ -17,10 +17,10 @@ export const ProtectedRoute = ({ children, requiredRoles, requireTenant = true }
   const { loading: tenantLoading, activeTenantId } = useTenant();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   if (loading) return <AppLoader />;
-  //if (!isAuthenticated) return <Navigate to="/login" />;
-  //if (requiredRoles && requiredRoles.length > 0 && !hasAnyRole(requiredRoles)) {
-  // return <Navigate to="/dashboard" />;
-  //}
+  if (!isAuthenticated) return <Navigate to="/login" />;
+  if (requiredRoles && requiredRoles.length > 0 && !hasAnyRole(requiredRoles)) {
+    return <Navigate to="/dashboard" />;
+  }
   if (requireTenant && isAuthenticated) {
     if (tenantLoading) return <AppLoader />;
     if (!activeTenantId && pathname !== "/onboarding") {

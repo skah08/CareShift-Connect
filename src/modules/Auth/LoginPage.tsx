@@ -16,16 +16,18 @@ export const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setBusy(true);
+    setError(null);
     try {
       if (mode === "signin") await signIn({ email, password });
       else await signUp({ email, password });
       await navigate({ to: "/dashboard" });
-    } catch {
-      /* toast handled in context */
+    } catch (err) {
+      setError((err as Error).message);
     } finally {
       setBusy(false);
     }
@@ -41,6 +43,12 @@ export const LoginPage = () => {
           <h1 className="text-2xl font-semibold">{t("auth.signInTitle")}</h1>
           <p className="text-sm text-muted-foreground mt-1">{t("auth.signInSubtitle")}</p>
         </div>
+
+        {error && (
+          <div className="rounded-lg bg-destructive/10 border border-destructive/30 px-4 py-3 text-sm text-destructive">
+            {error}
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
