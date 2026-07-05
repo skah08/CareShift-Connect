@@ -1,0 +1,118 @@
+{
+  "app": {
+    "name": "Hospishift",
+    "tagline": "Hospital Shift Manager"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Something went wrong",
+    "logout": "Sign out",
+    "save": "Save",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "retry": "Try again",
+    "email": "Email",
+    "password": "Password",
+    "signIn": "Sign in",
+    "signUp": "Create account",
+    "welcomeBack": "Welcome back"
+  },
+  "sidebar": {
+    "dashboard": "Dashboard",
+    "calendar": "Calendar",
+    "staff": "Staff",
+    "departments": "Departments",
+    "permissions": "Permissions",
+    "collapse": "Collapse sidebar",
+    "expand": "Expand sidebar"
+  },
+  "shifts": {
+    "start": "Start",
+    "end": "End",
+    "department": "Department",
+    "status": "Status",
+    "role": "Required role",
+    "next": "Next shift",
+    "todayOverview": "Today's overview",
+    "noneScheduled": "No shifts scheduled"
+  },
+  "dashboard": {
+    "greeting": "Hi, {{name}}",
+    "yourNextShift": "Your next shift",
+    "adminOverview": "Today's staffing overview",
+    "openShifts": "Open shifts",
+    "coverage": "Coverage",
+    "staffOnShift": "Staff on shift"
+  },
+  "calendar": {
+    "title": "Schedule",
+    "subtitle": "Monthly and weekly view",
+    "viewWeek": "Week",
+    "viewMonth": "Month",
+    "filterDepartment": "Department",
+    "filterMyShifts": "My shifts only",
+    "filterEmployees": "Employees",
+    "noShifts": "No shifts"
+  },
+  "staff": {
+    "title": "Personnel",
+    "subtitle": "Hospital staff directory",
+    "empty": "No staff members yet.",
+    "add": "Add employee",
+    "edit": "Edit employee",
+    "firstName": "First name",
+    "lastName": "Last name",
+    "role": "Primary role",
+    "contract": "Contract",
+    "fte": "FTE",
+    "search": "Search by name or email...",
+    "filterRole": "Role",
+    "filterContract": "Contract",
+    "roles": {
+      "Physician_Attending": "Attending Physician",
+      "Physician_Resident": "Resident Physician",
+      "Nurse_Manager": "Nurse Manager",
+      "Nurse_RN": "Registered Nurse",
+      "Nurse_Aide": "Nurse Aide",
+      "Midwife": "Midwife"
+    }
+  },
+  "departments": {
+    "title": "Departments",
+    "subtitle": "Cost centres and colour coding",
+    "empty": "No departments configured.",
+    "add": "Add department",
+    "edit": "Edit department",
+    "name": "Name",
+    "cost": "Cost centre",
+    "colour": "Colour"
+  },
+  "roster": {
+    "newAssignment": "New assignment",
+    "editAssignment": "Edit assignment",
+    "employee": "Employee",
+    "department": "Department",
+    "template": "Template",
+    "coverage": "Coverage",
+    "start": "Start",
+    "end": "End",
+    "notes": "Notes",
+    "delete": "Delete",
+    "compliant": "Compliant",
+    "hardIssues": "Hard violations",
+    "softIssues": "Warnings",
+    "findReplacement": "Find replacement",
+    "prev": "Previous",
+    "next": "Next",
+    "today": "Today",
+    "week": "Week"
+  },
+  "auth": {
+    "signInTitle": "Sign in to Hospishift",
+    "signInSubtitle": "Manage shifts across your hospital.",
+    "noAccount": "No account?",
+    "hasAccount": "Already have an account?",
+    "signOutSuccess": "Signed out.",
+    "signInError": "Invalid email or password."
+  }
+}

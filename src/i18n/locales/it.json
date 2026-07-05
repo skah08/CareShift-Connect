@@ -1,0 +1,118 @@
+{
+  "app": {
+    "name": "Hospishift",
+    "tagline": "Gestione Turni Ospedalieri"
+  },
+  "common": {
+    "loading": "Caricamento...",
+    "error": "Qualcosa \u00e8 andato storto",
+    "logout": "Esci",
+    "save": "Salva",
+    "cancel": "Annulla",
+    "confirm": "Conferma",
+    "retry": "Riprova",
+    "email": "Email",
+    "password": "Password",
+    "signIn": "Accedi",
+    "signUp": "Crea account",
+    "welcomeBack": "Bentornato"
+  },
+  "sidebar": {
+    "dashboard": "Dashboard",
+    "calendar": "Calendario",
+    "staff": "Personale",
+    "departments": "Reparti",
+    "permissions": "Permessi",
+    "collapse": "Comprimi menu",
+    "expand": "Espandi menu"
+  },
+  "shifts": {
+    "start": "Inizio",
+    "end": "Fine",
+    "department": "Reparto",
+    "status": "Stato",
+    "role": "Ruolo richiesto",
+    "next": "Prossimo turno",
+    "todayOverview": "Panoramica di oggi",
+    "noneScheduled": "Nessun turno programmato"
+  },
+  "dashboard": {
+    "greeting": "Ciao, {{name}}",
+    "yourNextShift": "Il tuo prossimo turno",
+    "adminOverview": "Panoramica turni di oggi",
+    "openShifts": "Turni scoperti",
+    "coverage": "Copertura",
+    "staffOnShift": "Personale in turno"
+  },
+  "calendar": {
+    "title": "Pianificazione",
+    "subtitle": "Vista mensile e settimanale",
+    "viewWeek": "Settimana",
+    "viewMonth": "Mese",
+    "filterDepartment": "Reparto",
+    "filterMyShifts": "Solo i miei turni",
+    "filterEmployees": "Dipendenti",
+    "noShifts": "Nessun turno"
+  },
+  "staff": {
+    "title": "Personale",
+    "subtitle": "Elenco del personale ospedaliero",
+    "empty": "Nessun membro del personale.",
+    "add": "Aggiungi dipendente",
+    "edit": "Modifica dipendente",
+    "firstName": "Nome",
+    "lastName": "Cognome",
+    "role": "Ruolo principale",
+    "contract": "Contratto",
+    "fte": "FTE",
+    "search": "Cerca per nome o email...",
+    "filterRole": "Ruolo",
+    "filterContract": "Contratto",
+    "roles": {
+      "Physician_Attending": "Medico Dirigente",
+      "Physician_Resident": "Medico Specializzando",
+      "Nurse_Manager": "Caposala",
+      "Nurse_RN": "Infermiere",
+      "Nurse_Aide": "OSS",
+      "Midwife": "Ostetrica"
+    }
+  },
+  "departments": {
+    "title": "Reparti",
+    "subtitle": "Centri di costo e colori",
+    "empty": "Nessun reparto configurato.",
+    "add": "Aggiungi reparto",
+    "edit": "Modifica reparto",
+    "name": "Nome",
+    "cost": "Centro di costo",
+    "colour": "Colore"
+  },
+  "roster": {
+    "newAssignment": "Nuovo turno",
+    "editAssignment": "Modifica turno",
+    "employee": "Dipendente",
+    "department": "Reparto",
+    "template": "Template",
+    "coverage": "Copertura",
+    "start": "Inizio",
+    "end": "Fine",
+    "notes": "Note",
+    "delete": "Elimina",
+    "compliant": "Conforme",
+    "hardIssues": "Violazioni bloccanti",
+    "softIssues": "Avvisi",
+    "findReplacement": "Trova sostituto",
+    "prev": "Precedente",
+    "next": "Successivo",
+    "today": "Oggi",
+    "week": "Settimana"
+  },
+  "auth": {
+    "signInTitle": "Accedi a Hospishift",
+    "signInSubtitle": "Gestisci i turni del tuo ospedale.",
+    "noAccount": "Non hai un account?",
+    "hasAccount": "Hai gi\u00e0 un account?",
+    "signOutSuccess": "Disconnesso.",
+    "signInError": "Email o password non validi."
+  }
+}
