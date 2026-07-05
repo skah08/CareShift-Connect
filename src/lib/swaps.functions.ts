@@ -19,6 +19,69 @@ export const listSwaps = createServerFn({ method: "GET" })
     return rows ?? [];
   });
 
+// Pending swap requests with priority scoring for the dashboard.
+export type PendingSwapRequest = {
+  id: string;
+  status: string;
+  created_at: string;
+  requester: { id: string; first_name: string; last_name: string } | null;
+  target: { id: string; first_name: string; last_name: string } | null;
+  requester_request_count: number;
+  priority_score: number;
+};
+
+export const getPendingSwapRequests = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((raw: unknown) => z.object({ tenant_id: z.string().uuid() }).parse(raw))
+  .handler(async ({ data, context }): Promise<PendingSwapRequest[]> => {
+    const [swapsResult, empsResult] = await Promise.all([
+      context.supabase
+        .from("shift_swaps")
+        .select("id, status, created_at, requester_employee_id, target_employee_id")
+        .eq("tenant_id", data.tenant_id)
+        .order("created_at", { ascending: false }),
+      context.supabase
+        .from("employees")
+        .select("id, first_name, last_name")
+        .eq("tenant_id", data.tenant_id),
+    ]);
+    if (swapsResult.error) throw swapsResult.error;
+    if (empsResult.error) throw empsResult.error;
+
+    const employees = empsResult.data ?? [];
+    const empMap = new Map(employees.map((e) => [e.id, e]));
+
+    const requestCounts = new Map<string, number>();
+    for (const s of swapsResult.data ?? []) {
+      requestCounts.set(
+        s.requester_employee_id,
+        (requestCounts.get(s.requester_employee_id) ?? 0) + 1,
+      );
+    }
+
+    const pending = (swapsResult.data ?? []).filter((s) =>
+      ["Pending_Peer", "Pending_Manager"].includes(s.status),
+    );
+
+    return pending
+      .map((s) => {
+        const count = requestCounts.get(s.requester_employee_id) ?? 1;
+        const score = 1 / (1 + count);
+        return {
+          id: s.id,
+          status: s.status,
+          created_at: s.created_at,
+          requester: empMap.get(s.requester_employee_id) ?? null,
+          target: s.target_employee_id
+            ? (empMap.get(s.target_employee_id) ?? null)
+            : null,
+          requester_request_count: count,
+          priority_score: score,
+        };
+      })
+      .sort((a, b) => a.priority_score - b.priority_score);
+  });
+
 // Propose a peer-to-peer swap.
 export const proposeSwap = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])

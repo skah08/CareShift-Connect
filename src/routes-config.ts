@@ -47,6 +47,14 @@ export const protectedRoutes: RouteConfig[] = [
     requiredRoles: ["admin"],
     showInSidebar: true,
   },
+  {
+    path: "/admin/tenants",
+    labelKey: "sidebar.tenants",
+    iconKey: "tenants",
+    isProtected: false,
+    requiredRoles: ["admin"],
+    showInSidebar: true,
+  },
 ];
 
 export const allRoutes: RouteConfig[] = [...publicRoutes, ...protectedRoutes];

@@ -23,6 +23,7 @@
     "staff": "Staff",
     "departments": "Departments",
     "permissions": "Permissions",
+    "tenants": "Tenants",
     "collapse": "Collapse sidebar",
     "expand": "Expand sidebar"
   },
@@ -42,7 +43,24 @@
     "adminOverview": "Today's staffing overview",
     "openShifts": "Open shifts",
     "coverage": "Coverage",
-    "staffOnShift": "Staff on shift"
+    "staffOnShift": "Staff on shift",
+    "onShiftToday": "On shift today",
+    "onLeaveToday": "On leave today",
+    "shiftsThisWeek": "Shifts this week",
+    "departmentCoverage": "Department coverage today",
+    "noOneOnLeave": "No one on leave",
+    "laterThisWeek": "Later this week",
+    "myNextShifts": "My next shifts",
+    "noUpcomingShifts": "No upcoming shifts",
+    "thisWeek": "This week",
+    "changeRequests": "Change requests",
+    "pending": "pending",
+    "awaitingPeer": "Awaiting peer",
+    "awaitingYou": "Awaiting you",
+    "firstRequest": "First request",
+    "requests": "requests",
+    "shiftFallback": "Shift",
+    "admin": "Admin"
   },
   "calendar": {
     "title": "Schedule",
@@ -74,7 +92,20 @@
       "Nurse_Manager": "Nurse Manager",
       "Nurse_RN": "Registered Nurse",
       "Nurse_Aide": "Nurse Aide",
-      "Midwife": "Midwife"
+      "Midwife": "Midwife",
+      "Surgeon": "Surgeon",
+      "Anesthesiologist": "Anesthesiologist",
+      "Pediatrician": "Pediatrician",
+      "Psychologist": "Psychologist",
+      "Physiotherapist": "Physiotherapist",
+      "Lab_Technician": "Lab Technician",
+      "Radiology_Technician": "Radiology Technician"
+    },
+    "contracts": {
+      "Full_Time": "Full time",
+      "Part_Time": "Part time",
+      "Freelancer_Locum": "Freelancer / Locum",
+      "External_Consultant": "External Consultant"
     }
   },
   "departments": {
@@ -102,6 +133,10 @@
     "hardIssues": "Hard violations",
     "softIssues": "Warnings",
     "findReplacement": "Find replacement",
+    "candidateOk": "No compliance violations — candidate can take this shift",
+    "candidateViolations": "{{count}} hard violation — assigning this shift would break compliance rules",
+    "candidateViolations_plural": "{{count}} hard violations — assigning this shift would break compliance rules",
+    "candidateViolationsList": "Violations:",
     "prev": "Previous",
     "next": "Next",
     "today": "Today",
@@ -113,6 +148,9 @@
     "noAccount": "No account?",
     "hasAccount": "Already have an account?",
     "signOutSuccess": "Signed out.",
-    "signInError": "Invalid email or password."
+    "signInError": "Invalid email or password.",
+    "orContinueWith": "Or continue with",
+    "signInWithGoogle": "Google",
+    "signInWithApple": "Apple"
   }
 }

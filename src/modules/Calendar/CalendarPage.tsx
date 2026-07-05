@@ -35,6 +35,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
   Dialog,
   DialogContent,
   DialogFooter,
@@ -44,7 +50,7 @@ import {
 import { useTenant } from "@/hooks/useTenant";
 import { useAuth } from "@/hooks/useAuth";
 import { usePermissions } from "@/hooks/usePermissions";
-import { listEmployees } from "@/lib/employees.functions";
+import { listEmployees, listEmployeeDepartments } from "@/lib/employees.functions";
 import { listDepartments } from "@/lib/departments.functions";
 import { listShiftTemplates } from "@/lib/shiftTemplates.functions";
 import {
@@ -153,6 +159,12 @@ export const CalendarPage = () => {
     enabled: !!activeTenantId,
   });
 
+  const employeeDepts = useQuery({
+    queryKey: ["employeeDepartments", activeTenantId],
+    queryFn: () => listEmployeeDepartments({ data: { tenant_id: activeTenantId! } }),
+    enabled: !!activeTenantId,
+  });
+
   const currentEmployee = useMemo(() => {
     if (!user?.email) return null;
     return (employees.data ?? []).find((e) => e.email === user.email) ?? null;
@@ -184,6 +196,26 @@ export const CalendarPage = () => {
       })),
     [employees.data],
   );
+
+  const empDeptMap = useMemo(() => {
+    const m = new Map<string, string>();
+    for (const ed of employeeDepts.data ?? []) {
+      if (!m.has(ed.employee_id) || ed.is_primary) {
+        m.set(ed.employee_id, ed.department_id);
+      }
+    }
+    return m;
+  }, [employeeDepts.data]);
+
+  const deptEmpIds = useMemo(() => {
+    const m = new Map<string, string[]>();
+    for (const ed of employeeDepts.data ?? []) {
+      const arr = m.get(ed.department_id) ?? [];
+      arr.push(ed.employee_id);
+      m.set(ed.department_id, arr);
+    }
+    return m;
+  }, [employeeDepts.data]);
 
   const filteredAssignments = useMemo(() => {
     let items = roster.data ?? [];
@@ -269,6 +301,24 @@ export const CalendarPage = () => {
     leave_type: string;
     reason: string;
   } | null>(null);
+
+  const filteredEmployees = useMemo(() => {
+    const all = employees.data ?? [];
+    if (!dialog?.department_id) return all;
+    const ids = deptEmpIds.get(dialog.department_id);
+    if (!ids?.length) return all;
+    const filtered = all.filter((e) => ids.includes(e.id));
+    if (dialog?.employee_id && !filtered.some((e) => e.id === dialog.employee_id)) {
+      const cur = all.find((e) => e.id === dialog.employee_id);
+      if (cur) filtered.push(cur);
+    }
+    return filtered;
+  }, [dialog?.department_id, dialog?.employee_id, employees.data, deptEmpIds]);
+
+  const isDeptDisabled = useMemo(
+    () => !!dialog?.employee_id && empDeptMap.has(dialog.employee_id),
+    [dialog?.employee_id, empDeptMap],
+  );
 
   const goBack = () => {
     setAnchor(viewMode === "week" ? addWeeks(anchor, -1) : addMonths(anchor, -1));
@@ -398,6 +448,14 @@ export const CalendarPage = () => {
   const onSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (!dialog || !canManageShifts) return;
+    if (!dialog.employee_id) {
+      toast.error("Select an employee");
+      return;
+    }
+    if (!dialog.department_id) {
+      toast.error("Select a department");
+      return;
+    }
     upsertMut.mutate(dialog);
   };
 
@@ -452,9 +510,9 @@ export const CalendarPage = () => {
             <span className="hidden sm:inline" />
           )}
           <Badge variant={canManageAll ? "default" : "secondary"} className="text-[10px] gap-1 shrink-0">
-            {canManageAll ? "Admin" : tenantRole ?? "staff"}
+            {canManageAll ? t("dashboard.admin") : tenantRole ?? "staff"}
             {!canManageAll && currentEmployee && (
-              <span className="opacity-70">· {currentEmployee.primary_role?.replace(/_/g, " ")}</span>
+              <span className="opacity-70">· {t(`staff.roles.${currentEmployee.primary_role}`)}</span>
             )}
           </Badge>
         </div>
@@ -713,13 +771,25 @@ export const CalendarPage = () => {
                   <Label>{t("roster.employee")}</Label>
                   <Select
                     value={dialog.employee_id}
-                    onValueChange={(v) => setDialog({ ...dialog, employee_id: v })}
+                    onValueChange={(v) => {
+                      if (v === "__none" || !v) {
+                        setDialog({ ...dialog, employee_id: "" });
+                        return;
+                      }
+                      const deptId = empDeptMap.get(v);
+                      if (deptId) {
+                        setDialog({ ...dialog, employee_id: v, department_id: deptId });
+                      } else {
+                        setDialog({ ...dialog, employee_id: v });
+                      }
+                    }}
                   >
                     <SelectTrigger><SelectValue placeholder="—" /></SelectTrigger>
                     <SelectContent>
-                      {(employees.data ?? []).map((e) => (
+                      <SelectItem value="__none">—</SelectItem>
+                      {filteredEmployees.map((e) => (
                         <SelectItem key={e.id} value={e.id}>
-                          {e.first_name} {e.last_name} · {e.primary_role.replace(/_/g, " ")}
+                          {e.first_name} {e.last_name} · {t(`staff.roles.${e.primary_role}`)}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -729,10 +799,20 @@ export const CalendarPage = () => {
                   <Label>{t("roster.department")}</Label>
                   <Select
                     value={dialog.department_id}
-                    onValueChange={(v) => setDialog({ ...dialog, department_id: v })}
+                    disabled={isDeptDisabled}
+                    onValueChange={(v) => {
+                      if (v === "__none" || !v) {
+                        setDialog({ ...dialog, department_id: "" });
+                        return;
+                      }
+                      const empIds = deptEmpIds.get(v);
+                      const newEmpId = empIds?.includes(dialog.employee_id) ? dialog.employee_id : "";
+                      setDialog({ ...dialog, department_id: v, employee_id: newEmpId });
+                    }}
                   >
                     <SelectTrigger><SelectValue placeholder="—" /></SelectTrigger>
                     <SelectContent>
+                      <SelectItem value="__none">—</SelectItem>
                       {(departments.data ?? []).map((d) => (
                         <SelectItem key={d.id} value={d.id}>{d.department_name}</SelectItem>
                       ))}
@@ -818,19 +898,50 @@ export const CalendarPage = () => {
                     {candidates.map((c) => (
                       <li
                         key={c.employee_id}
-                        className="flex items-center justify-between rounded border border-border/40 px-2 py-1"
+                        className="flex items-start justify-between rounded border border-border/40 px-2 py-1.5"
                       >
-                        <span>
-                          {c.first_name} {c.last_name}{" "}
-                          <span className="text-[10px] text-muted-foreground">
-                            OT {c.overtime_score}m
-                          </span>
-                        </span>
-                        {c.ok ? (
-                          <Badge variant="secondary">OK</Badge>
-                        ) : (
-                          <Badge variant="destructive">{c.hard_violation_codes.length}</Badge>
-                        )}
+                        <div className="min-w-0 flex-1">
+                          <div className="text-sm">
+                            {c.first_name} {c.last_name}{" "}
+                            <span className="text-[10px] text-muted-foreground">
+                              OT {c.overtime_score}m
+                            </span>
+                          </div>
+                          {!c.ok && c.hard_violations.length > 0 && (
+                            <ul className="mt-0.5 space-y-0.5">
+                              {c.hard_violations.map((v) => (
+                                <li key={v.code} className="text-[10px] text-destructive truncate">
+                                  {v.message}
+                                </li>
+                              ))}
+                            </ul>
+                          )}
+                        </div>
+                        <div className="shrink-0 ml-2">
+                          {c.ok ? (
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Badge variant="secondary" className="cursor-default">OK</Badge>
+                                </TooltipTrigger>
+                                <TooltipContent side="top">
+                                  <p>{t("roster.candidateOk")}</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          ) : (
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Badge variant="destructive" className="cursor-default">{c.hard_violations.length}</Badge>
+                                </TooltipTrigger>
+                                <TooltipContent side="top" className="max-w-64">
+                                  <p>{t("roster.candidateViolations", { count: c.hard_violations.length })}</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          )}
+                        </div>
                       </li>
                     ))}
                   </ul>
@@ -879,7 +990,7 @@ export const CalendarPage = () => {
                     {t("common.cancel")}
                   </Button>
                   {canManageShifts && (
-                    <Button type="submit" className="min-h-11 md:min-h-9" disabled={upsertMut.isPending}>
+                    <Button type="submit" className="min-h-11 md:min-h-9" disabled={!dialog.employee_id || !dialog.department_id || upsertMut.isPending}>
                       {t("common.save")}
                     </Button>
                   )}

@@ -13,6 +13,13 @@ const primaryRoles = [
   "Nurse_RN",
   "Nurse_Aide",
   "Midwife",
+  "Surgeon",
+  "Anesthesiologist",
+  "Pediatrician",
+  "Psychologist",
+  "Physiotherapist",
+  "Lab_Technician",
+  "Radiology_Technician",
 ] as const;
 
 const contractTypes = ["Full_Time", "Part_Time", "Freelancer_Locum", "External_Consultant"] as const;
@@ -90,6 +97,34 @@ const upsertEmployeeSchema = z.object({
   termination_date: z.string().nullable().optional(),
 });
 
+export const listEmployeeDepartments = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((raw: unknown) =>
+    z.object({
+      tenant_id: z.string().uuid(),
+    }).parse(raw),
+  )
+  .handler(async ({ data, context }) => {
+    const { data: rows, error } = await context.supabase
+      .from("employee_departments")
+      .select("employee_id, department_id, is_primary")
+      .in(
+        "department_id",
+        (
+          await context.supabase
+            .from("departments")
+            .select("id")
+            .eq("tenant_id", data.tenant_id)
+        ).data?.map((d) => d.id) ?? [],
+      );
+    if (error) throw error;
+    return rows as {
+      employee_id: string;
+      department_id: string;
+      is_primary: boolean;
+    }[];
+  });
+
 export const upsertEmployee = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((raw: unknown) => upsertEmployeeSchema.parse(raw))
@@ -130,4 +165,35 @@ export const upsertEmployee = createServerFn({ method: "POST" })
       .single();
     if (error) throw error;
     return { id: row.id };
+  });
+
+export const setEmployeeDepartments = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((raw: unknown) =>
+    z.object({
+      employee_id: z.string().uuid(),
+      department_ids: z.array(z.string().uuid()),
+    }).parse(raw),
+  )
+  .handler(async ({ data, context }) => {
+    const { supabase } = context;
+    const { employee_id, department_ids } = data;
+
+    const { error: delError } = await supabase
+      .from("employee_departments")
+      .delete()
+      .eq("employee_id", employee_id);
+    if (delError) throw delError;
+
+    if (department_ids.length === 0) return;
+
+    const rows = department_ids.map((department_id, i) => ({
+      employee_id,
+      department_id,
+      is_primary: i === 0,
+    }));
+    const { error: insError } = await supabase
+      .from("employee_departments")
+      .insert(rows);
+    if (insError) throw insError;
   });

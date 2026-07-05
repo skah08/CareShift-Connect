@@ -99,6 +99,45 @@ export type Database = {
           },
         ]
       }
+      employee_departments: {
+        Row: {
+          id: string
+          employee_id: string
+          department_id: string
+          is_primary: boolean
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          employee_id: string
+          department_id: string
+          is_primary?: boolean
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          employee_id?: string
+          department_id?: string
+          is_primary?: boolean
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "employee_departments_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "employee_departments_department_id_fkey"
+            columns: ["department_id"]
+            isOneToOne: false
+            referencedRelation: "departments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       employee_skills: {
         Row: {
           acquisition_date: string
@@ -660,6 +699,20 @@ export type Database = {
         Args: { _tenant: string; _user: string }
         Returns: boolean
       }
+      delete_tenant: {
+        Args: { _tenant_id: string }
+        Returns: boolean
+      }
+      list_all_tenants: {
+        Args: Record<string, never>
+        Returns: {
+          id: string
+          name: string
+          slug: string
+          created_at: string
+          member_count: number
+        }[]
+      }
     }
     Enums: {
       app_role: "admin" | "staff" | "viewer"
@@ -689,6 +742,13 @@ export type Database = {
         | "Nurse_RN"
         | "Nurse_Aide"
         | "Midwife"
+        | "Surgeon"
+        | "Anesthesiologist"
+        | "Pediatrician"
+        | "Psychologist"
+        | "Physiotherapist"
+        | "Lab_Technician"
+        | "Radiology_Technician"
       shift_status: "draft" | "published" | "approved"
       swap_status:
         | "Pending_Peer"

@@ -12,6 +12,7 @@ interface AuthContextValue {
   hasAnyRole: (roles: AppRole[]) => boolean;
   signIn: (payload: SignInPayload) => Promise<void>;
   signUp: (payload: SignUpPayload) => Promise<void>;
+  signInWithOAuth: (provider: string) => Promise<void>;
   signOut: () => Promise<void>;
   refresh: () => Promise<void>;
 }
@@ -24,6 +25,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const refresh = useCallback(async () => {
     try {
+      const { data: sessionData } = await supabase.auth.getSession();
+      if (!sessionData.session) {
+        setUser(null);
+        return;
+      }
       const current = await AuthService.getCurrentUser();
       setUser(current);
     } catch (err) {
@@ -55,27 +61,43 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     };
   }, [refresh]);
 
-  const signIn = useCallback(async (payload: SignInPayload) => {
-    try {
-      await AuthService.signIn(payload);
-      await refresh();
-    } catch (err) {
-      console.error("[Auth] signIn failed", err);
-      toast.error((err as Error).message);
-      throw err;
-    }
-  }, [refresh]);
+  const signIn = useCallback(
+    async (payload: SignInPayload) => {
+      try {
+        await AuthService.signIn(payload);
+        await refresh();
+      } catch (err) {
+        console.error("[Auth] signIn failed", err);
+        toast.error((err as Error).message);
+        throw err;
+      }
+    },
+    [refresh],
+  );
 
-  const signUp = useCallback(async (payload: SignUpPayload) => {
+  const signUp = useCallback(
+    async (payload: SignUpPayload) => {
+      try {
+        await AuthService.signUp(payload);
+        await refresh();
+      } catch (err) {
+        console.error("[Auth] signUp failed", err);
+        toast.error((err as Error).message);
+        throw err;
+      }
+    },
+    [refresh],
+  );
+
+  const signInWithOAuth = useCallback(async (provider: string) => {
     try {
-      await AuthService.signUp(payload);
-      await refresh();
+      await AuthService.signInWithOAuth(provider as never);
     } catch (err) {
-      console.error("[Auth] signUp failed", err);
+      console.error("[Auth] signInWithOAuth failed", err);
       toast.error((err as Error).message);
       throw err;
     }
-  }, [refresh]);
+  }, []);
 
   const signOut = useCallback(async () => {
     try {
@@ -86,17 +108,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   }, []);
 
-  const value = useMemo<AuthContextValue>(() => ({
-    user,
-    loading,
-    isAuthenticated: !!user,
-    hasRole: (role) => user?.roles.includes(role) ?? false,
-    hasAnyRole: (roles) => roles.some((r) => user?.roles.includes(r) ?? false),
-    signIn,
-    signUp,
-    signOut,
-    refresh,
-  }), [user, loading, signIn, signUp, signOut, refresh]);
+  const value = useMemo<AuthContextValue>(
+    () => ({
+      user,
+      loading,
+      isAuthenticated: !!user,
+      hasRole: (role) => user?.roles.includes(role) ?? false,
+      hasAnyRole: (roles) => roles.some((r) => user?.roles.includes(r) ?? false),
+      signIn,
+      signUp,
+      signInWithOAuth,
+      signOut,
+      refresh,
+    }),
+    [user, loading, signIn, signUp, signInWithOAuth, signOut, refresh],
+  );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

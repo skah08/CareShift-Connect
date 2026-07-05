@@ -93,3 +93,34 @@ export const updateTenantConfig = createServerFn({ method: "POST" })
     if (error) throw error;
     return { ok: true };
   });
+
+export interface TenantAdminDTO {
+  id: string;
+  name: string;
+  slug: string;
+  created_at: string;
+  member_count: number;
+}
+
+export const listAllTenants = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }): Promise<TenantAdminDTO[]> => {
+    const { supabase } = context;
+    const { data, error } = await supabase.rpc("list_all_tenants");
+    if (error) throw error;
+    return (data ?? []) as TenantAdminDTO[];
+  });
+
+export const deleteTenant = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((raw: unknown) =>
+    z.object({
+      tenant_id: z.string().uuid(),
+    }).parse(raw),
+  )
+  .handler(async ({ data, context }) => {
+    const { supabase } = context;
+    const { error } = await supabase.rpc("delete_tenant", { _tenant_id: data.tenant_id });
+    if (error) throw error;
+    return { ok: true };
+  });

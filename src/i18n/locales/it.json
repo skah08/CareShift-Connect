@@ -23,6 +23,7 @@
     "staff": "Personale",
     "departments": "Reparti",
     "permissions": "Permessi",
+    "tenants": "Organizzazioni",
     "collapse": "Comprimi menu",
     "expand": "Espandi menu"
   },
@@ -42,7 +43,24 @@
     "adminOverview": "Panoramica turni di oggi",
     "openShifts": "Turni scoperti",
     "coverage": "Copertura",
-    "staffOnShift": "Personale in turno"
+    "staffOnShift": "Personale in turno",
+    "onShiftToday": "In turno oggi",
+    "onLeaveToday": "In ferie oggi",
+    "shiftsThisWeek": "Turni questa settimana",
+    "departmentCoverage": "Copertura reparti oggi",
+    "noOneOnLeave": "Nessuno in ferie",
+    "laterThisWeek": "Pi\u00f9 avanti questa settimana",
+    "myNextShifts": "I miei prossimi turni",
+    "noUpcomingShifts": "Nessun turno in arrivo",
+    "thisWeek": "Questa settimana",
+    "changeRequests": "Richieste di cambio",
+    "pending": "in attesa",
+    "awaitingPeer": "In attesa del collega",
+    "awaitingYou": "In attesa di approvazione",
+    "firstRequest": "Prima richiesta",
+    "requests": "richieste",
+    "shiftFallback": "Turno",
+    "admin": "Amministratore"
   },
   "calendar": {
     "title": "Pianificazione",
@@ -74,7 +92,20 @@
       "Nurse_Manager": "Caposala",
       "Nurse_RN": "Infermiere",
       "Nurse_Aide": "OSS",
-      "Midwife": "Ostetrica"
+      "Midwife": "Ostetrica",
+      "Surgeon": "Chirurgo",
+      "Anesthesiologist": "Anestesista",
+      "Pediatrician": "Pediatra",
+      "Psychologist": "Psicologo",
+      "Physiotherapist": "Fisioterapista",
+      "Lab_Technician": "Tecnico di Laboratorio",
+      "Radiology_Technician": "Tecnico di Radiologia"
+    },
+    "contracts": {
+      "Full_Time": "Tempo pieno",
+      "Part_Time": "Part time",
+      "Freelancer_Locum": "Libero professionista / Sostituto",
+      "External_Consultant": "Consulente esterno"
     }
   },
   "departments": {
@@ -102,6 +133,10 @@
     "hardIssues": "Violazioni bloccanti",
     "softIssues": "Avvisi",
     "findReplacement": "Trova sostituto",
+    "candidateOk": "Nessuna violazione — il candidato pu\u00f2 prendere questo turno",
+    "candidateViolations": "{{count}} violazione bloccante — l'assegnazione violerebbe le regole di conformit\u00e0",
+    "candidateViolations_plural": "{{count}} violazioni bloccanti — l'assegnazione violerebbe le regole di conformit\u00e0",
+    "candidateViolationsList": "Violazioni:",
     "prev": "Precedente",
     "next": "Successivo",
     "today": "Oggi",
@@ -113,6 +148,9 @@
     "noAccount": "Non hai un account?",
     "hasAccount": "Hai gi\u00e0 un account?",
     "signOutSuccess": "Disconnesso.",
-    "signInError": "Email o password non validi."
+    "signInError": "Email o password non validi.",
+    "orContinueWith": "Oppure continua con",
+    "signInWithGoogle": "Google",
+    "signInWithApple": "Apple"
   }
 }

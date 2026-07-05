@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from "react";
+import { useState, useMemo, useEffect, type FormEvent } from "react";
 import { useTranslation } from "react-i18next";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -33,7 +33,8 @@ import {
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { useTenant } from "@/hooks/useTenant";
-import { listEmployees, upsertEmployee } from "@/lib/employees.functions";
+import { listEmployees, upsertEmployee, setEmployeeDepartments, listEmployeeDepartments } from "@/lib/employees.functions";
+import { listDepartments } from "@/lib/departments.functions";
 
 type EmployeeRow = Awaited<ReturnType<typeof listEmployees>>[number];
 
@@ -44,6 +45,13 @@ const PRIMARY_ROLES = [
   "Nurse_RN",
   "Nurse_Aide",
   "Midwife",
+  "Surgeon",
+  "Anesthesiologist",
+  "Pediatrician",
+  "Psychologist",
+  "Physiotherapist",
+  "Lab_Technician",
+  "Radiology_Technician",
 ] as const;
 
 const CONTRACT_TYPES = [
@@ -84,6 +92,7 @@ export const StaffPage = () => {
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState<FormState>(emptyForm);
   const [filterOpen, setFilterOpen] = useState(false);
+  const [selectedDeptIds, setSelectedDeptIds] = useState<string[]>([]);
 
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState<string[]>([]);
@@ -107,27 +116,71 @@ export const StaffPage = () => {
     enabled: !!activeTenantId,
   });
 
+  const departmentsQuery = useQuery({
+    queryKey: ["departments", activeTenantId],
+    queryFn: () => listDepartments({ data: { tenant_id: activeTenantId! } }),
+    enabled: !!activeTenantId,
+  });
+
+  const employeeDeptsQuery = useQuery({
+    queryKey: ["employeeDepartments", activeTenantId],
+    queryFn: () => listEmployeeDepartments({ data: { tenant_id: activeTenantId! } }),
+    enabled: !!activeTenantId,
+  });
+
+  const empDeptIds = useMemo(() => {
+    const m = new Map<string, string[]>();
+    for (const ed of employeeDeptsQuery.data ?? []) {
+      const arr = m.get(ed.employee_id) ?? [];
+      arr.push(ed.department_id);
+      m.set(ed.employee_id, arr);
+    }
+    return m;
+  }, [employeeDeptsQuery.data]);
+
+  useEffect(() => {
+    if (form.id) {
+      setSelectedDeptIds(empDeptIds.get(form.id) ?? []);
+    } else {
+      setSelectedDeptIds([]);
+    }
+  }, [form.id, empDeptIds]);
+
+  const toggleDept = (deptId: string) => {
+    setSelectedDeptIds((prev) =>
+      prev.includes(deptId) ? prev.filter((d) => d !== deptId) : [...prev, deptId],
+    );
+  };
+
   const mutation = useMutation({
-    mutationFn: async (payload: FormState) => {
+    mutationFn: async (payload: { form: FormState; deptIds: string[] }) => {
       if (!activeTenantId) throw new Error("No active tenant");
-      return upsertEmployee({
+      const result = await upsertEmployee({
         data: {
           tenant_id: activeTenantId,
-          id: payload.id,
-          first_name: payload.first_name,
-          last_name: payload.last_name,
-          email: payload.email,
-          primary_role: payload.primary_role,
-          contract_type: payload.contract_type,
-          fte_factor: payload.fte_factor,
+          id: payload.form.id,
+          first_name: payload.form.first_name,
+          last_name: payload.form.last_name,
+          email: payload.form.email,
+          primary_role: payload.form.primary_role,
+          contract_type: payload.form.contract_type,
+          fte_factor: payload.form.fte_factor,
         },
       });
+      if (payload.deptIds.length > 0) {
+        await setEmployeeDepartments({
+          data: { employee_id: result.id, department_ids: payload.deptIds },
+        });
+      }
+      return result;
     },
     onSuccess: () => {
       toast.success(t("common.save"));
       setOpen(false);
       setForm(emptyForm);
+      setSelectedDeptIds([]);
       qc.invalidateQueries({ queryKey: ["employees", activeTenantId] });
+      qc.invalidateQueries({ queryKey: ["employeeDepartments", activeTenantId] });
     },
     onError: (err) => toast.error((err as Error).message),
   });
@@ -152,6 +205,7 @@ export const StaffPage = () => {
 
   const openNew = () => {
     setForm(emptyForm);
+    setSelectedDeptIds([]);
     setOpen(true);
   };
   const openEdit = (e: EmployeeRow) => {
@@ -169,7 +223,7 @@ export const StaffPage = () => {
 
   const onSubmit = (ev: FormEvent) => {
     ev.preventDefault();
-    mutation.mutate(form);
+    mutation.mutate({ form, deptIds: selectedDeptIds });
   };
 
   return (
@@ -243,7 +297,7 @@ export const StaffPage = () => {
                           )
                         }
                       />
-                      {c.replace(/_/g, " ")}
+                      {t(`staff.contracts.${c}`)}
                     </label>
                   ))}
                 </div>
@@ -260,7 +314,6 @@ export const StaffPage = () => {
           <p className="text-muted-foreground">{t("staff.empty")}</p>
         ) : (
           <>
-            {/* Desktop: table */}
             <div className="hidden md:block overflow-x-auto">
               <table className="w-full text-sm">
                 <thead className="text-left text-xs uppercase text-muted-foreground">
@@ -302,7 +355,7 @@ export const StaffPage = () => {
                       <td className="py-3 pr-3">
                         <Badge variant="secondary">{t(`staff.roles.${e.primary_role}`)}</Badge>
                       </td>
-                      <td className="py-3 pr-3">{(e.contract_type ?? "").replace(/_/g, " ")}</td>
+                      <td className="py-3 pr-3">{t(`staff.contracts.${e.contract_type}`)}</td>
                       <td className="py-3 pr-3">{Number(e.fte_factor ?? 1).toFixed(2)}</td>
                       <td className="py-3 text-right">
                         <Button variant="ghost" size="sm" onClick={() => openEdit(e)}>
@@ -314,7 +367,6 @@ export const StaffPage = () => {
                 </tbody>
               </table>
             </div>
-            {/* Mobile: cards */}
             <div className="md:hidden flex flex-col gap-3">
               {query.data!.map((e) => (
                 <div
@@ -332,7 +384,7 @@ export const StaffPage = () => {
                         {t(`staff.roles.${e.primary_role}`)}
                       </Badge>
                       <span className="text-[10px] text-muted-foreground self-center">
-                        {(e.contract_type ?? "").replace(/_/g, " ")} · {Number(e.fte_factor ?? 1).toFixed(2)} FTE
+                        {t(`staff.contracts.${e.contract_type}`)} · {Number(e.fte_factor ?? 1).toFixed(2)} FTE
                       </span>
                     </div>
                   </div>
@@ -371,7 +423,7 @@ export const StaffPage = () => {
               </div>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="em">Email</Label>
+              <Label htmlFor="em">{t("common.email")}</Label>
               <Input autoComplete="off"
                 id="em"
                 type="email"
@@ -390,7 +442,7 @@ export const StaffPage = () => {
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
                     {PRIMARY_ROLES.map((r) => (
-                      <SelectItem key={r} value={r}>{r.replace(/_/g, " ")}</SelectItem>
+                      <SelectItem key={r} value={r}>{t(`staff.roles.${r}`)}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -404,7 +456,7 @@ export const StaffPage = () => {
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
                     {CONTRACT_TYPES.map((r) => (
-                      <SelectItem key={r} value={r}>{r.replace(/_/g, " ")}</SelectItem>
+                      <SelectItem key={r} value={r}>{t(`staff.contracts.${r}`)}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -423,6 +475,37 @@ export const StaffPage = () => {
                 required
               />
             </div>
+
+            <Separator />
+
+            <div className="space-y-2">
+              <Label>{t("departments.title")}</Label>
+              {departmentsQuery.isLoading ? (
+                <p className="text-xs text-muted-foreground">{t("common.loading")}</p>
+              ) : (departmentsQuery.data?.length ?? 0) === 0 ? (
+                <p className="text-xs text-muted-foreground">{t("departments.empty")}</p>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 max-h-48 overflow-y-auto">
+                  {departmentsQuery.data!.map((dept) => (
+                    <label
+                      key={dept.id}
+                      className="flex items-center gap-2 text-sm cursor-pointer rounded px-2 py-1.5 hover:bg-accent/60 transition-colors"
+                    >
+                      <Checkbox
+                        checked={selectedDeptIds.includes(dept.id)}
+                        onCheckedChange={() => toggleDept(dept.id)}
+                      />
+                      <span
+                        className="size-2.5 rounded-full shrink-0"
+                        style={{ backgroundColor: dept.color_code }}
+                      />
+                      {dept.department_name}
+                    </label>
+                  ))}
+                </div>
+              )}
+            </div>
+
             <DialogFooter>
               <Button type="button" variant="ghost" onClick={() => setOpen(false)} className="min-h-11 md:min-h-9">
                 {t("common.cancel")}
