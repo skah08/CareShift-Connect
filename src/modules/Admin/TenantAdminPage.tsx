@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { Trans } from "react-i18next";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
@@ -52,7 +53,7 @@ export const TenantAdminPage = () => {
       return res;
     },
     onSuccess: (res) => {
-      toast.success("Tenant created");
+      toast.success(t("admin.tenant.created"));
       setShowCreate(false);
       setFormName("");
       setFormSlug("");
@@ -68,7 +69,7 @@ export const TenantAdminPage = () => {
       await deleteTenant({ data: { tenant_id: tenantId } });
     },
     onSuccess: () => {
-      toast.success("Tenant deleted");
+      toast.success(t("admin.tenant.deleted"));
       setDeleteTarget(null);
       setConfirmName("");
       setConfirmDelete("");
@@ -87,9 +88,9 @@ export const TenantAdminPage = () => {
     <div className="space-y-6 max-w-4xl mx-auto">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-semibold">Tenant Management</h1>
+          <h1 className="text-2xl sm:text-3xl font-semibold">{t("admin.tenant.title")}</h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Create and manage organisations
+            {t("admin.tenant.subtitle")}
           </p>
         </div>
         <Button
@@ -101,7 +102,7 @@ export const TenantAdminPage = () => {
           className="min-h-11 md:min-h-9"
         >
           <Plus className="size-4 mr-1.5" />
-          New tenant
+          {t("admin.tenant.new")}
         </Button>
       </div>
 
@@ -113,7 +114,7 @@ export const TenantAdminPage = () => {
             Error: {(error as Error).message}
           </p>
         ) : !tenants?.length ? (
-          <p className="text-sm text-muted-foreground">No tenants found</p>
+          <p className="text-sm text-muted-foreground">{t("admin.tenant.empty")}</p>
         ) : (
           <div className="divide-y divide-border/50">
             {tenants.map((tenant) => (
@@ -128,7 +129,7 @@ export const TenantAdminPage = () => {
                   <div className="min-w-0">
                     <div className="font-medium truncate">{tenant.name}</div>
                     <div className="text-xs text-muted-foreground">
-                      {tenant.slug} · {tenant.member_count} member{tenant.member_count !== 1 ? "s" : ""}
+                      {tenant.slug} · {t("admin.tenant.memberCount", { count: tenant.member_count })}
                     </div>
                   </div>
                 </div>
@@ -147,7 +148,7 @@ export const TenantAdminPage = () => {
                     }}
                   >
                     <Trash2 className="size-3.5 mr-1" />
-                    Delete
+                    {t("admin.tenant.delete")}
                   </Button>
                 </div>
               </div>
@@ -159,7 +160,7 @@ export const TenantAdminPage = () => {
       <Dialog open={showCreate} onOpenChange={(o) => !o && setShowCreate(false)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>New tenant</DialogTitle>
+            <DialogTitle>{t("admin.tenant.createTitle")}</DialogTitle>
           </DialogHeader>
           <form
             onSubmit={(e) => {
@@ -170,7 +171,7 @@ export const TenantAdminPage = () => {
             className="space-y-4"
           >
             <div className="space-y-2">
-              <Label>Organisation name</Label>
+              <Label>{t("admin.tenant.orgName")}</Label>
               <Input
                 autoComplete="off"
                 value={formName}
@@ -182,7 +183,7 @@ export const TenantAdminPage = () => {
               />
             </div>
             <div className="space-y-2">
-              <Label>Slug</Label>
+              <Label>{t("admin.tenant.slug")}</Label>
               <Input
                 autoComplete="off"
                 value={formSlug}
@@ -191,15 +192,15 @@ export const TenantAdminPage = () => {
                 required
               />
               <p className="text-[10px] text-muted-foreground">
-                Lowercase letters, digits and hyphens only
+                {t("admin.tenant.slugHint")}
               </p>
             </div>
             <DialogFooter>
-              <Button type="button" variant="ghost" onClick={() => setShowCreate(false)}>
-                Cancel
+              <Button type="button" variant="ghost" onClick={() => setShowCreate(false)} className="min-h-11 sm:min-h-9">
+                {t("admin.tenant.cancel")}
               </Button>
-              <Button type="submit" disabled={!formName.trim() || !formSlug.trim() || createMut.isPending}>
-                {createMut.isPending ? t("common.loading") : "Create"}
+              <Button type="submit" disabled={!formName.trim() || !formSlug.trim() || createMut.isPending} className="min-h-11 sm:min-h-9">
+                {createMut.isPending ? t("common.loading") : t("admin.tenant.create")}
               </Button>
             </DialogFooter>
           </form>
@@ -220,30 +221,29 @@ export const TenantAdminPage = () => {
           <DialogHeader>
             <DialogTitle className="text-destructive flex items-center gap-2">
               <Trash2 className="size-5" />
-              Delete tenant
+              {t("admin.tenant.deleteTitle")}
             </DialogTitle>
             <DialogDescription className="pt-2">
-              This action <strong>cannot be undone</strong>. All data associated with{" "}
-              <strong>{deleteTarget?.name}</strong> will be permanently deleted.
+              <Trans i18nKey="admin.tenant.deleteWarning" values={{ name: deleteTarget?.name }} />
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4">
             <div className="rounded-md border border-destructive/40 bg-destructive/5 p-3 text-sm space-y-1">
-              <p className="font-medium text-destructive">What will be deleted:</p>
+              <p className="font-medium text-destructive">{t("admin.tenant.deleteWhat")}</p>
               <ul className="text-muted-foreground text-xs space-y-0.5 list-disc list-inside">
-                <li>All shift assignments and roster data</li>
-                <li>All employees and their profiles</li>
-                <li>All departments, shift templates, and skills</li>
-                <li>All leave records and swap requests</li>
-                <li>All compliance and configuration settings</li>
-                <li>All tenant memberships and permissions</li>
+                <li>{t("admin.tenant.deleteItem1")}</li>
+                <li>{t("admin.tenant.deleteItem2")}</li>
+                <li>{t("admin.tenant.deleteItem3")}</li>
+                <li>{t("admin.tenant.deleteItem4")}</li>
+                <li>{t("admin.tenant.deleteItem5")}</li>
+                <li>{t("admin.tenant.deleteItem6")}</li>
               </ul>
             </div>
 
             <div className="space-y-2">
               <Label className="text-sm">
-                Type <strong>{deleteTarget?.name}</strong> to confirm:
+                <Trans i18nKey="admin.tenant.confirmName" values={{ name: deleteTarget?.name }} />
               </Label>
               <Input
                 autoComplete="off"
@@ -255,7 +255,7 @@ export const TenantAdminPage = () => {
 
             <div className="space-y-2">
               <Label className="text-sm">
-                Type <strong>DELETE</strong> to confirm:
+                <Trans i18nKey="admin.tenant.confirmDelete" />
               </Label>
               <Input
                 autoComplete="off"
@@ -266,7 +266,7 @@ export const TenantAdminPage = () => {
             </div>
           </div>
 
-          <DialogFooter className="flex gap-2">
+          <DialogFooter className="flex flex-wrap gap-2 items-center">
             <Button
               variant="ghost"
               onClick={() => {
@@ -274,17 +274,19 @@ export const TenantAdminPage = () => {
                 setConfirmName("");
                 setConfirmDelete("");
               }}
+              className="min-h-11 sm:min-h-9"
             >
               <X className="size-4 mr-1" />
-              Cancel
+              {t("admin.tenant.cancel")}
             </Button>
             <Button
               variant="destructive"
               disabled={!canDelete || deleteMut.isPending}
               onClick={() => deleteTarget && deleteMut.mutate(deleteTarget.id)}
+              className="min-h-11 sm:min-h-9"
             >
               <Check className="size-4 mr-1" />
-              {deleteMut.isPending ? t("common.loading") : "Permanently delete"}
+              {deleteMut.isPending ? t("common.loading") : t("admin.tenant.permanentlyDelete")}
             </Button>
           </DialogFooter>
         </DialogContent>

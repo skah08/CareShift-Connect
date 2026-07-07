@@ -10,6 +10,13 @@ export const publicRoutes: RouteConfig[] = [
 
 export const protectedRoutes: RouteConfig[] = [
   {
+    path: "/getting-started",
+    labelKey: "sidebar.gettingStarted",
+    iconKey: "gettingStarted",
+    isProtected: false,
+    showInSidebar: true,
+  },
+  {
     path: "/dashboard",
     labelKey: "sidebar.dashboard",
     iconKey: "dashboard",

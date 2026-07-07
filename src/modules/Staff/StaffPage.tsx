@@ -228,7 +228,7 @@ export const StaffPage = () => {
 
   return (
     <div className="space-y-6 max-w-6xl">
-      <div className="flex items-end justify-between">
+      <div className="flex items-end justify-between gap-3 flex-wrap">
         <div>
           <h1 className="text-2xl sm:text-3xl font-semibold">{t("staff.title")}</h1>
           <p className="text-sm text-muted-foreground mt-1">{t("staff.subtitle")}</p>

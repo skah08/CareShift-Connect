@@ -156,10 +156,10 @@ export const ShiftTemplatesPage = () => {
                   <Badge variant="outline" className="text-[10px]">
                     {tmpl.is_night_shift ? t("templates.night") : t("templates.day")}
                   </Badge>
-                  <Button variant="ghost" size="icon" className="size-8" onClick={() => openEdit(tmpl)}>
+                  <Button variant="ghost" size="icon" className="min-h-11 min-w-11 sm:min-h-9 sm:min-w-9" onClick={() => openEdit(tmpl)}>
                     <Pencil className="size-3.5" />
                   </Button>
-                  <Button variant="ghost" size="icon" className="size-8" onClick={() => setDeleteTarget(tmpl.id)}>
+                  <Button variant="ghost" size="icon" className="min-h-11 min-w-11 sm:min-h-9 sm:min-w-9" onClick={() => setDeleteTarget(tmpl.id)}>
                     <Trash2 className="size-3.5 text-destructive" />
                   </Button>
                 </div>

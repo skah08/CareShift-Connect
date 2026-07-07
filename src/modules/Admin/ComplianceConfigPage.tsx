@@ -174,13 +174,13 @@ export const ComplianceConfigPage = () => {
 
           <div className="space-y-2">
             <Label>{t("compliance.nightShiftWindow")}</Label>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 flex-wrap">
               <Input
                 type="time"
                 autoComplete="off"
                 value={nightStart}
                 onChange={(e) => setNightStart(e.target.value)}
-                className="w-32"
+                className="w-32 max-w-[45%]"
               />
               <span className="text-muted-foreground">→</span>
               <Input
@@ -188,7 +188,7 @@ export const ComplianceConfigPage = () => {
                 autoComplete="off"
                 value={nightEnd}
                 onChange={(e) => setNightEnd(e.target.value)}
-                className="w-32"
+                className="w-32 max-w-[45%]"
               />
             </div>
           </div>
@@ -249,7 +249,7 @@ export const ComplianceConfigPage = () => {
                     type="button"
                     variant="ghost"
                     size="icon"
-                    className="size-8 shrink-0 self-end sm:self-center"
+                    className="min-h-11 min-w-11 sm:min-h-9 sm:min-w-9 shrink-0 self-end sm:self-center"
                     onClick={() => removeSequence(i)}
                   >
                     <Trash2 className="size-4 text-destructive" />

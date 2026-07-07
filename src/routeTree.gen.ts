@@ -13,6 +13,7 @@ import { Route as StaffRouteImport } from './routes/staff'
 import { Route as PermissionsRouteImport } from './routes/permissions'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as GettingStartedRouteImport } from './routes/getting-started'
 import { Route as DepartmentsRouteImport } from './routes/departments'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as CalendarRouteImport } from './routes/calendar'
@@ -39,6 +40,11 @@ const OnboardingRoute = OnboardingRouteImport.update({
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GettingStartedRoute = GettingStartedRouteImport.update({
+  id: '/getting-started',
+  path: '/getting-started',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DepartmentsRoute = DepartmentsRouteImport.update({
@@ -82,6 +88,7 @@ export interface FileRoutesByFullPath {
   '/calendar': typeof CalendarRoute
   '/dashboard': typeof DashboardRoute
   '/departments': typeof DepartmentsRoute
+  '/getting-started': typeof GettingStartedRoute
   '/login': typeof LoginRoute
   '/onboarding': typeof OnboardingRoute
   '/permissions': typeof PermissionsRoute
@@ -95,6 +102,7 @@ export interface FileRoutesByTo {
   '/calendar': typeof CalendarRoute
   '/dashboard': typeof DashboardRoute
   '/departments': typeof DepartmentsRoute
+  '/getting-started': typeof GettingStartedRoute
   '/login': typeof LoginRoute
   '/onboarding': typeof OnboardingRoute
   '/permissions': typeof PermissionsRoute
@@ -109,6 +117,7 @@ export interface FileRoutesById {
   '/calendar': typeof CalendarRoute
   '/dashboard': typeof DashboardRoute
   '/departments': typeof DepartmentsRoute
+  '/getting-started': typeof GettingStartedRoute
   '/login': typeof LoginRoute
   '/onboarding': typeof OnboardingRoute
   '/permissions': typeof PermissionsRoute
@@ -124,6 +133,7 @@ export interface FileRouteTypes {
     | '/calendar'
     | '/dashboard'
     | '/departments'
+    | '/getting-started'
     | '/login'
     | '/onboarding'
     | '/permissions'
@@ -137,6 +147,7 @@ export interface FileRouteTypes {
     | '/calendar'
     | '/dashboard'
     | '/departments'
+    | '/getting-started'
     | '/login'
     | '/onboarding'
     | '/permissions'
@@ -150,6 +161,7 @@ export interface FileRouteTypes {
     | '/calendar'
     | '/dashboard'
     | '/departments'
+    | '/getting-started'
     | '/login'
     | '/onboarding'
     | '/permissions'
@@ -164,6 +176,7 @@ export interface RootRouteChildren {
   CalendarRoute: typeof CalendarRoute
   DashboardRoute: typeof DashboardRoute
   DepartmentsRoute: typeof DepartmentsRoute
+  GettingStartedRoute: typeof GettingStartedRoute
   LoginRoute: typeof LoginRoute
   OnboardingRoute: typeof OnboardingRoute
   PermissionsRoute: typeof PermissionsRoute
@@ -201,6 +214,13 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/getting-started': {
+      id: '/getting-started'
+      path: '/getting-started'
+      fullPath: '/getting-started'
+      preLoaderRoute: typeof GettingStartedRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/departments': {
@@ -260,6 +280,7 @@ const rootRouteChildren: RootRouteChildren = {
   CalendarRoute: CalendarRoute,
   DashboardRoute: DashboardRoute,
   DepartmentsRoute: DepartmentsRoute,
+  GettingStartedRoute: GettingStartedRoute,
   LoginRoute: LoginRoute,
   OnboardingRoute: OnboardingRoute,
   PermissionsRoute: PermissionsRoute,

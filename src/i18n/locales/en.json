@@ -26,6 +26,7 @@
     "tenants": "Tenants",
     "compliance": "Compliance",
     "templates": "Templates",
+    "gettingStarted": "Getting Started",
     "collapse": "Collapse sidebar",
     "expand": "Expand sidebar"
   },
@@ -235,6 +236,135 @@
       "TL": "Long Shift",
       "TLN": "Long Night",
       "I": "Intermediate"
+    }
+  },
+  "admin": {
+    "tenant": {
+      "title": "Tenant Management",
+      "subtitle": "Create and manage organisations",
+      "new": "New tenant",
+      "created": "Tenant created",
+      "deleted": "Tenant deleted",
+      "empty": "No tenants found",
+      "createTitle": "New tenant",
+      "orgName": "Organisation name",
+      "slug": "Slug",
+      "slugHint": "Lowercase letters, digits and hyphens only",
+      "deleteTitle": "Delete tenant",
+      "deleteWarning": "This action <strong>cannot be undone</strong>. All data associated with <strong>{{name}}</strong> will be permanently deleted.",
+      "deleteWhat": "What will be deleted:",
+      "deleteItem1": "All shift assignments and roster data",
+      "deleteItem2": "All employees and their profiles",
+      "deleteItem3": "All departments, shift templates, and skills",
+      "deleteItem4": "All leave records and swap requests",
+      "deleteItem5": "All compliance and configuration settings",
+      "deleteItem6": "All tenant memberships and permissions",
+      "confirmName": "Type <strong>{{name}}</strong> to confirm:",
+      "confirmDelete": "Type <strong>DELETE</strong> to confirm:",
+      "cancel": "Cancel",
+      "create": "Create",
+      "permanentlyDelete": "Permanently delete",
+      "delete": "Delete",
+      "memberCount_one": "{{count}} member",
+      "memberCount_other": "{{count}} members"
+    }
+  },
+  "onboarding": {
+    "title": "Create your organization",
+    "subtitle": "Every HospiShift workspace is scoped to a tenant. Create one to continue.",
+    "orgName": "Organization name",
+    "orgNamePlaceholder": "Ospedale San Raffaele",
+    "slug": "Slug",
+    "slugPlaceholder": "san-raffaele",
+    "slugHint": "Lowercase letters, digits and hyphens.",
+    "submit": "Create organization",
+    "submitting": "Creating\u2026",
+    "switchOrg": "Or switch to an existing organization:",
+    "created": "Organization created"
+  },
+  "gettingStarted": {
+    "title": "Getting Started",
+    "subtitle": "Learn how HospiShift works",
+    "whatIs": {
+      "title": "What is HospiShift?",
+      "body": "HospiShift is a hospital shift management platform that helps you plan, track, and manage staff shifts, leaves, and swaps. It provides compliance tools to ensure fair scheduling and adherence to labour regulations."
+    },
+    "features": {
+      "title": "Main Features",
+      "dashboard": {
+        "title": "Dashboard",
+        "body": "See an overview of coverage, upcoming shifts, leave requests, and pending swaps at a glance."
+      },
+      "calendar": {
+        "title": "Calendar",
+        "body": "Plan and manage daily shift assignments per department. Drag-and-drop support for quick scheduling."
+      },
+      "staff": {
+        "title": "Staff",
+        "body": "Manage employee profiles, roles, contract types, and department assignments."
+      },
+      "departments": {
+        "title": "Departments",
+        "body": "Organise your staff into cost centres (e.g. Emergency, Cardiology, Surgery) with coloured tags."
+      },
+      "leaves": {
+        "title": "Leaves",
+        "body": "Approve or decline leave requests and track employee absences."
+      },
+      "swaps": {
+        "title": "Shift Swaps",
+        "body": "Employees can request shift swaps; managers review and approve them with compliance checks."
+      }
+    },
+    "terms": {
+      "title": "Key Terms",
+      "fte": {
+        "title": "FTE (Full-Time Equivalent)",
+        "body": "A unit that measures the workload of an employee. 1.0 FTE = full-time, 0.5 FTE = half-time. Used to calculate coverage and staffing requirements."
+      },
+      "costCenter": {
+        "title": "Cost Centre (Department)",
+        "body": "A department or unit within the hospital (e.g. Emergency, Cardiology). Each cost centre has its own shift schedule, budget, and staff assignments."
+      },
+      "shiftTemplate": {
+        "title": "Shift Template",
+        "body": "A predefined shift type with a code, start/end time, break duration, and night-flag. Examples: M (Morning 07\u201314), P (Afternoon 14\u201321), N (Night 21\u201307)."
+      },
+      "tenant": {
+        "title": "Tenant (Organisation)",
+        "body": "A workspace representing a hospital or clinic. Each tenant has its own staff, departments, shift templates, and compliance rules. Users can belong to multiple tenants."
+      },
+      "compliance": {
+        "title": "Compliance Rules",
+        "body": "Automated checks that enforce labour regulations: minimum daily rest (11h), maximum weekly hours (48h), forbidden shift sequences (e.g. Night cannot be followed by Morning), and minimum weekly rest (35h)."
+      },
+      "permissions": {
+        "title": "Permissions",
+        "body": "Granular access controls per tenant. An admin can grant specific permissions (e.g. manage calendar, approve swaps) to individual users. Super admins can manage cross-tenant."
+      }
+    },
+    "admin": {
+      "title": "Admin Features",
+      "tenants": {
+        "title": "Tenants",
+        "body": "Create and delete organisations. This is a super-admin feature available to users with the admin role."
+      },
+      "compliance": {
+        "title": "Compliance",
+        "body": "Configure rest rules, forbidden sequences, night shift windows, and auto-approval settings per tenant."
+      },
+      "templates": {
+        "title": "Shift Templates",
+        "body": "Define the shift types available in your organisation (codes, times, breaks, night flags)."
+      },
+      "permissions": {
+        "title": "Permissions",
+        "body": "Assign granular permissions to users for each tenant (who can manage shifts, approve swaps, view staff, etc.)."
+      },
+      "staff": {
+        "title": "Staff",
+        "body": "Manage all employee records, including roles, contract types, FTE values, and department links."
+      }
     }
   }
 }

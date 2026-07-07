@@ -458,7 +458,7 @@ export const CalendarPage = () => {
               : `${format(startOfMonth(anchor), "MMMM yyyy")}`}
           </p>
         </div>
-        <div className="flex items-center gap-1 sm:gap-2">
+        <div className="flex items-center gap-1 sm:gap-2 flex-wrap">
           <div className="flex items-center rounded-md border border-input bg-background shadow-sm">
             <button
               className={`px-2 sm:px-3 min-h-11 md:min-h-9 text-xs sm:text-sm font-medium cursor-pointer rounded-l-md transition-colors ${
@@ -1018,7 +1018,7 @@ export const CalendarPage = () => {
                   </SelectContent>
                 </Select>
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="space-y-2">
                   <Label>Start date</Label>
                   <Input autoComplete="off"
@@ -1064,7 +1064,7 @@ export const CalendarPage = () => {
                   onChange={(e) => setLeaveDialog({ ...leaveDialog, reason: e.target.value })}
                 />
               </div>
-              <DialogFooter className="flex justify-between gap-2">
+              <DialogFooter className="flex flex-wrap justify-between gap-2">
                 <div className="flex gap-2">
                   {leaveDialog.id && (canManageAll || permissions.leaves_manage || permissions.leaves_manage_department) && (
                     <Button

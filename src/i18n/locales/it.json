@@ -26,6 +26,7 @@
     "tenants": "Organizzazioni",
     "compliance": "Conformit\u00e0",
     "templates": "Template Turni",
+    "gettingStarted": "Guida Introduttiva",
     "collapse": "Comprimi menu",
     "expand": "Espandi menu"
   },
@@ -235,6 +236,135 @@
       "TL": "Turno Lungo",
       "TLN": "Turno Lungo Notte",
       "I": "Intermedio / Supporto"
+    }
+  },
+  "admin": {
+    "tenant": {
+      "title": "Gestione Tenant",
+      "subtitle": "Crea e gestisci le organizzazioni",
+      "new": "Nuovo tenant",
+      "created": "Tenant creato",
+      "deleted": "Tenant eliminato",
+      "empty": "Nessun tenant trovato",
+      "createTitle": "Nuovo tenant",
+      "orgName": "Nome organizzazione",
+      "slug": "Slug",
+      "slugHint": "Solo lettere minuscole, numeri e trattini.",
+      "deleteTitle": "Elimina tenant",
+      "deleteWarning": "Questa azione <strong>non pu\u00f2 essere annullata</strong>. Tutti i dati associati a <strong>{{name}}</strong> verranno eliminati definitivamente.",
+      "deleteWhat": "Cosa verr\u00e0 eliminato:",
+      "deleteItem1": "Tutti i turni e i dati del calendario",
+      "deleteItem2": "Tutti i dipendenti e i loro profili",
+      "deleteItem3": "Tutti i reparti, i template turno e le competenze",
+      "deleteItem4": "Tutti i permessi e le richieste di scambio",
+      "deleteItem5": "Tutte le impostazioni di conformit\u00e0 e configurazione",
+      "deleteItem6": "Tutte le iscrizioni e le autorizzazioni del tenant",
+      "confirmName": "Digita <strong>{{name}}</strong> per confermare:",
+      "confirmDelete": "Digita <strong>DELETE</strong> per confermare:",
+      "cancel": "Annulla",
+      "create": "Crea",
+      "permanentlyDelete": "Elimina definitivamente",
+      "delete": "Elimina",
+      "memberCount_one": "{{count}} membro",
+      "memberCount_other": "{{count}} membri"
+    }
+  },
+  "onboarding": {
+    "title": "Crea la tua organizzazione",
+    "subtitle": "Ogni workspace di HospiShift \u00e8 legato a un tenant. Creane uno per iniziare.",
+    "orgName": "Nome organizzazione",
+    "orgNamePlaceholder": "Ospedale San Raffaele",
+    "slug": "Slug",
+    "slugPlaceholder": "san-raffaele",
+    "slugHint": "Solo lettere minuscole, numeri e trattini.",
+    "submit": "Crea organizzazione",
+    "submitting": "Creazione in corso\u2026",
+    "switchOrg": "Oppure passa a un'organizzazione esistente:",
+    "created": "Organizzazione creata"
+  },
+  "gettingStarted": {
+    "title": "Guida Introduttiva",
+    "subtitle": "Scopri come funziona HospiShift",
+    "whatIs": {
+      "title": "Cos'\u00e8 HospiShift?",
+      "body": "HospiShift \u00e8 una piattaforma di gestione turni ospedaliera che aiuta a pianificare, monitorare e gestire turni, ferie e scambi del personale. Include strumenti di conformit\u00e0 per garantire una programmazione equa e il rispetto delle normative sul lavoro."
+    },
+    "features": {
+      "title": "Funzionalit\u00e0 Principali",
+      "dashboard": {
+        "title": "Dashboard",
+        "body": "Panoramica su copertura, turni imminenti, richieste di ferie e scambi in sospeso."
+      },
+      "calendar": {
+        "title": "Calendario",
+        "body": "Pianifica e gestisci i turni giornalieri per reparto. Supporto drag-and-drop per una programmazione rapida."
+      },
+      "staff": {
+        "title": "Personale",
+        "body": "Gestisci profili dipendenti, ruoli, tipi di contratto e assegnazione ai reparti."
+      },
+      "departments": {
+        "title": "Reparti",
+        "body": "Organizza il personale in centri di costo (es. Pronto Soccorso, Cardiologia, Chirurgia) con etichette colorate."
+      },
+      "leaves": {
+        "title": "Ferie",
+        "body": "Approva o rifiuta richieste di ferie e monitora le assenze."
+      },
+      "swaps": {
+        "title": "Scambi Turni",
+        "body": "I dipendenti possono richiedere scambi; i manager li esaminano e approvano con controlli di conformit\u00e0."
+      }
+    },
+    "terms": {
+      "title": "Termini Chiave",
+      "fte": {
+        "title": "FTE (Full-Time Equivalent)",
+        "body": "Unit\u00e0 che misura il carico di lavoro di un dipendente. 1.0 FTE = tempo pieno, 0.5 FTE = part-time. Utilizzato per calcolare la copertura e il fabbisogno di personale."
+      },
+      "costCenter": {
+        "title": "Centro di Costo (Reparto)",
+        "body": "Un reparto o unit\u00e0 all'interno dell'ospedale (es. Pronto Soccorso, Cardiologia). Ogni centro di costo ha la propria programmazione turni, budget e assegnazione del personale."
+      },
+      "shiftTemplate": {
+        "title": "Template Turno",
+        "body": "Un tipo di turno predefinito con codice, orario inizio/fine, durata pausa e indicatore notturno. Esempi: M (Mattina 07\u201314), P (Pomeriggio 14\u201321), N (Notte 21\u201307)."
+      },
+      "tenant": {
+        "title": "Tenant (Organizzazione)",
+        "body": "Un workspace che rappresenta un ospedale o clinica. Ogni tenant ha il proprio personale, reparti, template turni e regole di conformit\u00e0. Gli utenti possono appartenere a pi\u00f9 tenant."
+      },
+      "compliance": {
+        "title": "Regole di Conformit\u00e0",
+        "body": "Controlli automatici che applicano le normative sul lavoro: riposo minimo giornaliero (11h), ore massime settimanali (48h), sequenze vietate (es. Notte non pu\u00f2 seguire Mattina) e riposo settimanale minimo (35h)."
+      },
+      "permissions": {
+        "title": "Permessi",
+        "body": "Controlli di accesso granulari per tenant. Un admin pu\u00f2 concedere permessi specifici (es. gestione calendario, approvazione scambi) a singoli utenti. I super admin possono gestire pi\u00f9 tenant."
+      }
+    },
+    "admin": {
+      "title": "Funzionalit\u00e0 Admin",
+      "tenants": {
+        "title": "Organizzazioni",
+        "body": "Crea ed elimina organizzazioni. Funzionalit\u00e0 super-admin disponibile per utenti con ruolo admin."
+      },
+      "compliance": {
+        "title": "Conformit\u00e0",
+        "body": "Configura regole di riposo, sequenze vietate, finestra notturna e approvazione automatica per tenant."
+      },
+      "templates": {
+        "title": "Template Turno",
+        "body": "Definisci i tipi di turno disponibili nell'organizzazione (codici, orari, pause, notturni)."
+      },
+      "permissions": {
+        "title": "Permessi",
+        "body": "Assegna permessi granulari agli utenti per ogni tenant (chi pu\u00f2 gestire turni, approvare scambi, vedere il personale, ecc.)."
+      },
+      "staff": {
+        "title": "Personale",
+        "body": "Gestisci tutti i dipendenti, inclusi ruoli, tipi di contratto, valori FTE e collegamenti ai reparti."
+      }
     }
   }
 }

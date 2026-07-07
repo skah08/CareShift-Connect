@@ -1,6 +1,6 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
-import { LayoutDashboard, CalendarDays, Users, Building2, Shield, Building, Scale, Clock, LogOut, type LucideIcon } from "lucide-react";
+import { LayoutDashboard, CalendarDays, Users, Building2, Shield, Building, Scale, Clock, BookOpen, LogOut, type LucideIcon } from "lucide-react";
 
 import {
   Sidebar,
@@ -27,6 +27,7 @@ const iconMap: Record<string, LucideIcon> = {
   tenants: Building,
   compliance: Scale,
   templates: Clock,
+  gettingStarted: BookOpen,
 };
 
 export const AppSidebar = () => {

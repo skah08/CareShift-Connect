@@ -133,13 +133,15 @@ export function PermissionsPage() {
                       key={key}
                       className="text-center px-1 py-2.5 border-l border-border/20"
                     >
-                      <input
-                        type="checkbox"
-                        checked={checked}
-                        disabled={!canManage}
-                        onChange={() => toggle(emp.user_id, key, checked)}
-                        className="size-4 accent-primary cursor-pointer disabled:cursor-not-allowed disabled:opacity-40"
-                      />
+                      <label className="flex items-center justify-center min-h-11 min-w-11 cursor-pointer disabled:cursor-not-allowed">
+                        <input
+                          type="checkbox"
+                          checked={checked}
+                          disabled={!canManage}
+                          onChange={() => toggle(emp.user_id, key, checked)}
+                          className="size-4 accent-primary pointer-events-none disabled:opacity-40"
+                        />
+                      </label>
                     </td>
                   );
                 })}
