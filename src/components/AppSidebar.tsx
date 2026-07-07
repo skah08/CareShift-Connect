@@ -1,6 +1,6 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
-import { LayoutDashboard, CalendarDays, Users, Building2, Shield, Building, Scale, Clock, BookOpen, Map, LogOut, type LucideIcon } from "lucide-react";
+import { LayoutDashboard, CalendarDays, Users, Building2, Shield, Building, Scale, Clock, BookOpen, Map, LogOut, UserCheck, ClipboardCheck, type LucideIcon } from "lucide-react";
 
 import {
   Sidebar,
@@ -15,6 +15,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { useAuth } from "@/hooks/useAuth";
+import { useTenant } from "@/hooks/useTenant";
 import { protectedRoutes } from "@/routes-config";
 import { TenantSwitcher } from "@/components/TenantSwitcher";
 
@@ -29,18 +30,25 @@ const iconMap: Record<string, LucideIcon> = {
   templates: Clock,
   gettingStarted: BookOpen,
   roadmap: Map,
+  pendingApprovals: UserCheck,
+  shiftProposals: ClipboardCheck,
 };
 
 export const AppSidebar = () => {
   const { t } = useTranslation();
   const { state, isMobile } = useSidebar();
   const { signOut, user, hasAnyRole } = useAuth();
+  const { activeTenant } = useTenant();
   const pathname = useRouterState({ select: (r) => r.location.pathname });
   const collapsed = state === "collapsed";
 
   const visible = protectedRoutes.filter((r) => {
     if (!r.showInSidebar) return false;
     if (r.requiredRoles && !hasAnyRole(r.requiredRoles)) return false;
+    if (r.requiredTenantRoles) {
+      const canSee = hasAnyRole(["admin"]) || (activeTenant && r.requiredTenantRoles.includes(activeTenant.role));
+      if (!canSee) return false;
+    }
     return true;
   });
 

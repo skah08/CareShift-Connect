@@ -6,6 +6,40 @@ import type { Database } from "@/integrations/supabase/types";
 
 type Employee = Database["public"]["Tables"]["employees"]["Row"];
 
+type EmployeeDept = { employee_id: string; department_id: string; is_primary: boolean };
+
+async function getUserDeptFilter(
+  supabase: any,
+  userId: string,
+  tenantId: string,
+): Promise<{ allowedDeptIds: string[]; employeeId: string } | null> {
+  const { data: adminRole } = await supabase
+    .from("user_roles")
+    .select("role")
+    .eq("user_id", userId)
+    .eq("role", "admin")
+    .maybeSingle();
+  if (adminRole) return null;
+
+  const empRes = await supabase
+    .from("employees")
+    .select("id")
+    .eq("tenant_id", tenantId)
+    .eq("user_id", userId)
+    .maybeSingle();
+  if (!empRes.data) return null;
+
+  const edRes = await supabase
+    .from("employee_departments")
+    .select("department_id")
+    .eq("employee_id", empRes.data.id);
+
+  const deptIds = (edRes.data ?? []).map((d: { department_id: string }) => d.department_id);
+  if (deptIds.length === 0) return null;
+
+  return { allowedDeptIds: deptIds, employeeId: empRes.data.id };
+}
+
 const primaryRoles = [
   "Physician_Attending",
   "Physician_Resident",
@@ -47,13 +81,33 @@ export const listEmployees = createServerFn({ method: "GET" })
     }).parse(raw),
   )
   .handler(async ({ data, context }) => {
-    const { data: rows, error } = await context.supabase
+    const supabase = context.supabase as any;
+    const { data: rows, error } = await supabase
       .from("employees")
       .select("*")
       .eq("tenant_id", data.tenant_id);
     if (error) throw error;
 
     let result: Employee[] = rows ?? [];
+
+    const filter = await getUserDeptFilter(supabase, context.userId, data.tenant_id);
+    if (filter) {
+      const { allowedDeptIds, employeeId } = filter;
+      const deptSet = new Set(allowedDeptIds);
+      const empIdsInDepts = new Set<string>();
+
+      const { data: allEd } = await supabase
+        .from("employee_departments")
+        .select("employee_id, department_id")
+        .in("department_id", allowedDeptIds);
+
+      for (const ed of (allEd ?? []) as EmployeeDept[]) {
+        if (deptSet.has(ed.department_id)) empIdsInDepts.add(ed.employee_id);
+      }
+      empIdsInDepts.add(employeeId);
+
+      result = result.filter((e) => empIdsInDepts.has(e.id));
+    }
 
     if (data.search) {
       const q = data.search.toLowerCase().trim();

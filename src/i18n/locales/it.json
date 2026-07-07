@@ -15,7 +15,8 @@
     "password": "Password",
     "signIn": "Accedi",
     "signUp": "Crea account",
-    "welcomeBack": "Bentornato"
+    "welcomeBack": "Bentornato",
+    "accessDenied": "Accesso negato"
   },
   "sidebar": {
     "dashboard": "Dashboard",
@@ -28,6 +29,8 @@
     "templates": "Template Turni",
     "gettingStarted": "Guida Introduttiva",
     "roadmap": "Roadmap",
+    "pendingApprovals": "Approvazioni in sospeso",
+    "shiftProposals": "Proposte Turni",
     "collapse": "Comprimi menu",
     "expand": "Espandi menu"
   },
@@ -183,7 +186,14 @@
     "signInError": "Email o password non validi.",
     "orContinueWith": "Oppure continua con",
     "signInWithGoogle": "Google",
-    "signInWithApple": "Apple"
+    "signInWithApple": "Apple",
+    "firstName": "Nome",
+    "lastName": "Cognome"
+  },
+  "verifyEmail": {
+    "title": "Verifica la tua email",
+    "description": "Ti abbiamo inviato un link di conferma alla tua email. Clicca il link per attivare il tuo account.",
+    "backToLogin": "Torna al login"
   },
   "compliance": {
     "title": "Regole di conformit\u00e0",
@@ -268,6 +278,49 @@
       "delete": "Elimina",
       "memberCount_one": "{{count}} membro",
       "memberCount_other": "{{count}} membri"
+    },
+    "pendingApprovals": {
+      "title": "Approvazioni in sospeso",
+      "subtitle": "Revisiona e gestisci le richieste in attesa",
+      "empty": "Nessuna richiesta in sospeso.",
+      "pending": "in sospeso",
+      "email": "Email",
+      "type": "Tipo",
+      "typeJoin": "Adesione Tenant",
+      "date": "Data",
+      "actions": "Azioni",
+      "approve": "Approva",
+      "decline": "Rifiuta",
+      "approved": "Richiesta approvata",
+      "declined": "Richiesta rifiutata",
+      "approveTitle": "Approva Richiesta",
+      "approveDescription": "Assegna questo utente a un tenant con il ruolo appropriato.",
+      "selectTenant": "Seleziona tenant",
+      "selectRole": "Seleziona ruolo",
+      "selectDepartment": "Seleziona reparto",
+      "confirmApprove": "Conferma e approva"
+    },
+    "shiftProposals": {
+      "title": "Proposte Turni",
+      "subtitle": "Revisiona e approva le proposte di turno del personale",
+      "pending": "in sospeso",
+      "empty": "Nessuna proposta di turno in sospeso.",
+      "emptyFilter": "Nessuna proposta corrisponde al filtro selezionato.",
+      "allDepartments": "Tutti i Reparti",
+      "employee": "Dipendente",
+      "department": "Reparto",
+      "shift": "Turno",
+      "date": "Data",
+      "time": "Orario",
+      "actions": "Azioni",
+      "approve": "Approva",
+      "reject": "Rifiuta",
+      "approved": "Proposta turno approvata",
+      "rejected": "Proposta turno rifiutata",
+      "rejectTitle": "Rifiuta Proposta Turno",
+      "rejectDescription": "Sei sicuro di voler rifiutare questa proposta di turno? Verrà rimossa permanentemente.",
+      "confirmReject": "Sì, rifiuta",
+      "noPermission": "Non hai il permesso di approvare le proposte di turno."
     }
   },
   "onboarding": {
@@ -282,6 +335,11 @@
     "submitting": "Creazione in corso\u2026",
     "switchOrg": "Oppure passa a un'organizzazione esistente:",
     "created": "Organizzazione creata"
+  },
+  "waiting": {
+    "title": "Account in attesa di approvazione",
+    "description": "La tua registrazione è in attesa. Un amministratore deve assegnarti a un'organizzazione prima che tu possa accedere alla piattaforma.",
+    "pendingBadge": "In attesa di approvazione"
   },
   "gettingStarted": {
     "title": "Guida Introduttiva",

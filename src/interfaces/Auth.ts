@@ -10,6 +10,10 @@ export interface SignUpPayload extends SignInPayload {
   last_name?: string;
 }
 
+export interface SignUpResult {
+  needsEmailConfirmation: boolean;
+}
+
 export interface AuthState {
   user: HospishiftUser | null;
   loading: boolean;

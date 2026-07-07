@@ -78,6 +78,22 @@ export const protectedRoutes: RouteConfig[] = [
     showInSidebar: true,
   },
   {
+    path: "/admin/pending-approvals",
+    labelKey: "sidebar.pendingApprovals",
+    iconKey: "pendingApprovals",
+    isProtected: false,
+    requiredRoles: ["admin"],
+    showInSidebar: true,
+  },
+  {
+    path: "/admin/shift-proposals",
+    labelKey: "sidebar.shiftProposals",
+    iconKey: "shiftProposals",
+    isProtected: false,
+    requiredTenantRoles: ["owner", "manager", "planner"],
+    showInSidebar: true,
+  },
+  {
     path: "/admin/templates",
     labelKey: "sidebar.templates",
     iconKey: "templates",

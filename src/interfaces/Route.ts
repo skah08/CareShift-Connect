@@ -6,5 +6,6 @@ export interface RouteConfig {
   iconKey: string;
   isProtected: boolean;
   requiredRoles?: AppRole[];
+  requiredTenantRoles?: string[];
   showInSidebar: boolean;
 }

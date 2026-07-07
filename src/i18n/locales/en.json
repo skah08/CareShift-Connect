@@ -15,7 +15,8 @@
     "password": "Password",
     "signIn": "Sign in",
     "signUp": "Create account",
-    "welcomeBack": "Welcome back"
+    "welcomeBack": "Welcome back",
+    "accessDenied": "Access denied"
   },
   "sidebar": {
     "dashboard": "Dashboard",
@@ -28,6 +29,8 @@
     "templates": "Templates",
     "gettingStarted": "Getting Started",
     "roadmap": "Roadmap",
+    "pendingApprovals": "Pending Approvals",
+    "shiftProposals": "Shift Proposals",
     "collapse": "Collapse sidebar",
     "expand": "Expand sidebar"
   },
@@ -183,7 +186,14 @@
     "signInError": "Invalid email or password.",
     "orContinueWith": "Or continue with",
     "signInWithGoogle": "Google",
-    "signInWithApple": "Apple"
+    "signInWithApple": "Apple",
+    "firstName": "First name",
+    "lastName": "Last name"
+  },
+  "verifyEmail": {
+    "title": "Verify your email",
+    "description": "We sent a confirmation link to your email. Click the link to activate your account.",
+    "backToLogin": "Back to login"
   },
   "compliance": {
     "title": "Compliance Rules",
@@ -268,6 +278,49 @@
       "delete": "Delete",
       "memberCount_one": "{{count}} member",
       "memberCount_other": "{{count}} members"
+    },
+    "pendingApprovals": {
+      "title": "Pending Approvals",
+      "subtitle": "Review and manage pending requests",
+      "empty": "No pending requests.",
+      "pending": "pending",
+      "email": "Email",
+      "type": "Type",
+      "typeJoin": "Tenant Join",
+      "date": "Date",
+      "actions": "Actions",
+      "approve": "Approve",
+      "decline": "Decline",
+      "approved": "Request approved",
+      "declined": "Request declined",
+      "approveTitle": "Approve Request",
+      "approveDescription": "Assign this user to a tenant with the appropriate role.",
+      "selectTenant": "Select tenant",
+      "selectRole": "Select role",
+      "selectDepartment": "Select department",
+      "confirmApprove": "Confirm & Approve"
+    },
+    "shiftProposals": {
+      "title": "Shift Proposals",
+      "subtitle": "Review and approve shift proposals from staff",
+      "pending": "pending",
+      "empty": "No pending shift proposals.",
+      "emptyFilter": "No proposals match the selected filter.",
+      "allDepartments": "All Departments",
+      "employee": "Employee",
+      "department": "Department",
+      "shift": "Shift",
+      "date": "Date",
+      "time": "Time",
+      "actions": "Actions",
+      "approve": "Approve",
+      "reject": "Reject",
+      "approved": "Shift proposal approved",
+      "rejected": "Shift proposal rejected",
+      "rejectTitle": "Reject Shift Proposal",
+      "rejectDescription": "Are you sure you want to reject this shift proposal? It will be permanently removed.",
+      "confirmReject": "Yes, reject",
+      "noPermission": "You do not have permission to approve shift proposals."
     }
   },
   "onboarding": {
@@ -282,6 +335,11 @@
     "submitting": "Creating\u2026",
     "switchOrg": "Or switch to an existing organization:",
     "created": "Organization created"
+  },
+  "waiting": {
+    "title": "Account awaiting approval",
+    "description": "Your registration is pending. An administrator needs to assign you to an organization before you can access the platform.",
+    "pendingBadge": "Pending approval"
   },
   "gettingStarted": {
     "title": "Getting Started",

@@ -1,4 +1,4 @@
-import { Navigate, useRouterState } from "@tanstack/react-router";
+import { Navigate } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 
 import { AppLoader } from "./AppLoader";
@@ -10,22 +10,35 @@ interface ProtectedRouteProps {
   children: ReactNode;
   requiredRoles?: AppRole[];
   requireTenant?: boolean;
+  requireWaiting?: boolean;
 }
 
-export const ProtectedRoute = ({ children, requiredRoles, requireTenant = true }: ProtectedRouteProps) => {
+export const ProtectedRoute = ({ children, requiredRoles, requireTenant = true, requireWaiting }: ProtectedRouteProps) => {
   const { loading, isAuthenticated, hasAnyRole } = useAuth();
   const { loading: tenantLoading, activeTenantId } = useTenant();
-  const pathname = useRouterState({ select: (s) => s.location.pathname });
+
   if (loading) return <AppLoader />;
   if (!isAuthenticated) return <Navigate to="/login" />;
-  if (requiredRoles && requiredRoles.length > 0 && !hasAnyRole(requiredRoles)) {
+
+  // Admins bypass tenant/waiting checks entirely
+  const isAdmin = hasAnyRole(["admin"]);
+  if (isAdmin) return <>{children}</>;
+
+  if (requiredRoles && requiredRoles.length > 0 && !isAdmin) {
     return <Navigate to="/dashboard" />;
   }
-  if (requireTenant && isAuthenticated) {
+
+  // Waiting page — only for users without a tenant AND without admin role
+  if (requireWaiting) {
     if (tenantLoading) return <AppLoader />;
-    if (!activeTenantId && pathname !== "/onboarding") {
-      return <Navigate to="/onboarding" />;
-    }
+    if (activeTenantId) return <Navigate to="/dashboard" />;
+    return <>{children}</>;
   }
+
+  if (requireTenant) {
+    if (tenantLoading) return <AppLoader />;
+    if (!activeTenantId) return <Navigate to="/waiting" />;
+  }
+
   return <>{children}</>;
 };

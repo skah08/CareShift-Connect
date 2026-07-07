@@ -3,6 +3,43 @@ import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import type { ComplianceReport } from "@/lib/compliance/types";
+import type { Database } from "@/integrations/supabase/types";
+
+type Assignment = Database["public"]["Tables"]["shift_assignments"]["Row"] & {
+  employees: { first_name: string; last_name: string; primary_role: string } | null;
+  shift_templates: { shift_code: string; is_night_shift: boolean } | null;
+  departments: { department_name: string; color_code: string } | null;
+};
+
+async function getUserDeptFilter(
+  supabase: any,
+  userId: string,
+  tenantId: string,
+): Promise<string[] | null> {
+  const { data: adminRole } = await supabase
+    .from("user_roles")
+    .select("role")
+    .eq("user_id", userId)
+    .eq("role", "admin")
+    .maybeSingle();
+  if (adminRole) return null;
+
+  const empRes = await supabase
+    .from("employees")
+    .select("id")
+    .eq("tenant_id", tenantId)
+    .eq("user_id", userId)
+    .maybeSingle();
+  if (!empRes.data) return null;
+
+  const edRes = await supabase
+    .from("employee_departments")
+    .select("department_id")
+    .eq("employee_id", empRes.data.id);
+
+  const deptIds = (edRes.data ?? []).map((d: { department_id: string }) => d.department_id);
+  return deptIds.length > 0 ? deptIds : null;
+}
 
 // ---------- LIST ROSTER FOR A RANGE ---------------------------------
 
@@ -17,7 +54,8 @@ export const listRosterRange = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .inputValidator((raw: unknown) => listRosterSchema.parse(raw))
   .handler(async ({ data, context }) => {
-    let q = context.supabase
+    const supabase = context.supabase as any;
+    let q = supabase
       .from("shift_assignments")
       .select(
         "id, employee_id, department_id, shift_template_id, shift_date, actual_start_timestamp, actual_end_timestamp, assignment_status, coverage_type, notes, employees(first_name, last_name, primary_role), shift_templates(shift_code, is_night_shift), departments(department_name, color_code)"
@@ -26,10 +64,17 @@ export const listRosterRange = createServerFn({ method: "GET" })
       .gte("actual_start_timestamp", data.from)
       .lte("actual_start_timestamp", data.to)
       .order("actual_start_timestamp", { ascending: true });
-    if (data.department_id) q = q.eq("department_id", data.department_id);
+
+    const allowedDeptIds = await getUserDeptFilter(supabase, context.userId, data.tenant_id);
+    if (allowedDeptIds) {
+      q = q.in("department_id", allowedDeptIds);
+    } else if (data.department_id) {
+      q = q.eq("department_id", data.department_id);
+    }
+
     const { data: rows, error } = await q;
     if (error) throw error;
-    return rows ?? [];
+    return (rows ?? []) as Assignment[];
   });
 
 // ---------- EVALUATE (dry-run) --------------------------------------
@@ -103,7 +148,7 @@ export const upsertAssignment = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((raw: unknown) => upsertAssignmentSchema.parse(raw))
   .handler(async ({ data, context }) => {
-    const { supabase } = context;
+    const supabase = context.supabase as any;
     const report = await runEvaluation(supabase, data.tenant_id, {
       tenant_id: data.tenant_id,
       employee_id: data.employee_id,
@@ -118,7 +163,25 @@ export const upsertAssignment = createServerFn({ method: "POST" })
       return { ok: false as const, report };
     }
 
-    const payload = {
+    // Determine status: staff → Staff_Proposed, managers → Scheduled
+    const { data: adminRole } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", context.userId)
+      .eq("role", "admin")
+      .maybeSingle();
+
+    const { data: tenantRole } = await supabase
+      .from("tenant_members")
+      .select("role")
+      .eq("user_id", context.userId)
+      .eq("tenant_id", data.tenant_id)
+      .in("role", ["owner", "manager", "planner"])
+      .maybeSingle();
+
+    const canManage = !!adminRole || !!tenantRole;
+
+    const payload: Record<string, unknown> = {
       employee_id: data.employee_id,
       department_id: data.department_id,
       shift_template_id: data.shift_template_id ?? null,
@@ -128,6 +191,10 @@ export const upsertAssignment = createServerFn({ method: "POST" })
       coverage_type: data.coverage_type,
       notes: data.notes ?? null,
     };
+
+    if (!canManage) {
+      payload.assignment_status = "Staff_Proposed";
+    }
 
     if (data.id) {
       const { error } = await supabase

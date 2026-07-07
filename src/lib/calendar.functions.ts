@@ -10,11 +10,46 @@ type Assignment = Database["public"]["Tables"]["shift_assignments"]["Row"] & {
   departments: { department_name: string; color_code: string } | null;
 };
 
+type Employee = Database["public"]["Tables"]["employees"]["Row"];
+type EmployeeDept = { employee_id: string; department_id: string; is_primary: boolean };
+
 const inputSchema = z.object({
   tenant_id: z.string().uuid(),
   view_from: z.string(),
   view_to: z.string(),
 });
+
+async function getUserDeptFilter(
+  supabase: any,
+  userId: string,
+  tenantId: string,
+): Promise<{ allowedDeptIds: string[]; employeeId: string } | null> {
+  const { data: adminRole } = await supabase
+    .from("user_roles")
+    .select("role")
+    .eq("user_id", userId)
+    .eq("role", "admin")
+    .maybeSingle();
+  if (adminRole) return null;
+
+  const empRes = await supabase
+    .from("employees")
+    .select("id")
+    .eq("tenant_id", tenantId)
+    .eq("user_id", userId)
+    .maybeSingle();
+  if (!empRes.data) return null;
+
+  const edRes = await supabase
+    .from("employee_departments")
+    .select("department_id")
+    .eq("employee_id", empRes.data.id);
+
+  const deptIds = (edRes.data ?? []).map((d: { department_id: string }) => d.department_id);
+  if (deptIds.length === 0) return null;
+
+  return { allowedDeptIds: deptIds, employeeId: empRes.data.id };
+}
 
 export const getCalendarPageData = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
@@ -56,19 +91,41 @@ export const getCalendarPageData = createServerFn({ method: "GET" })
           : { data: [] },
       ]);
 
+    let employees = (employeesRes.data ?? []) as Employee[];
+    let departments = (departmentsRes.data ?? []) as Database["public"]["Tables"]["departments"]["Row"][];
+    let roster = (rosterRes.data ?? []) as Assignment[];
+    let leaves = (leavesRes.data ?? []) as Array<{
+      id: string; tenant_id: string; employee_id: string;
+      start_date: string; end_date: string;
+      leave_type: string; status: string; reason: string | null;
+      created_at: string; updated_at: string;
+    }>;
+    let employeeDepartments = ((deptRes as any)?.data ?? []) as EmployeeDept[];
+
+    const filter = await getUserDeptFilter(supabase, context.userId, tenant_id);
+    if (filter) {
+      const { allowedDeptIds, employeeId } = filter;
+      const deptSet = new Set(allowedDeptIds);
+      const empIdsInDepts = new Set(
+        employeeDepartments
+          .filter((ed) => deptSet.has(ed.department_id))
+          .map((ed) => ed.employee_id),
+      );
+      empIdsInDepts.add(employeeId);
+
+      employees = employees.filter((e) => empIdsInDepts.has(e.id));
+      departments = departments.filter((d) => deptSet.has(d.id));
+      roster = roster.filter((a) => a.department_id && deptSet.has(a.department_id));
+      leaves = leaves.filter((l) => empIdsInDepts.has(l.employee_id));
+      employeeDepartments = employeeDepartments.filter((ed) => deptSet.has(ed.department_id));
+    }
+
     return {
-      employees: (employeesRes.data ?? []) as Database["public"]["Tables"]["employees"]["Row"][],
-      departments: (departmentsRes.data ?? []) as Database["public"]["Tables"]["departments"]["Row"][],
+      employees,
+      departments,
       templates: (templatesRes.data ?? []) as Database["public"]["Tables"]["shift_templates"]["Row"][],
-      roster: (rosterRes.data ?? []) as Assignment[],
-      leaves: (leavesRes.data ?? []) as Array<{
-        id: string; tenant_id: string; employee_id: string;
-        start_date: string; end_date: string;
-        leave_type: string; status: string; reason: string | null;
-        created_at: string; updated_at: string;
-      }>,
-      employeeDepartments: ((deptRes as any)?.data ?? []) as Array<{
-        employee_id: string; department_id: string; is_primary: boolean;
-      }>,
+      roster,
+      leaves,
+      employeeDepartments,
     };
   });

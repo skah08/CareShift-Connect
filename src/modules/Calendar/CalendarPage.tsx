@@ -161,6 +161,7 @@ export const CalendarPage = () => {
   const tenantRole = activeTenant?.role;
   const canManageAll = superAdmin || permissions.calendar_manage;
   const canManageShifts = canManageAll || permissions.calendar_manage_department;
+  const canProposeShifts = !!activeTenant;
 
   const currentEmployeeDeptIds = useMemo(() => {
     if (!currentEmployee) return [] as string[];
@@ -302,10 +303,15 @@ export const CalendarPage = () => {
     return filtered;
   }, [dialog?.department_id, dialog?.employee_id, employees, deptEmpIds]);
 
-  const isDeptDisabled = useMemo(
-    () => !!dialog?.employee_id && empDeptMap.has(dialog.employee_id),
-    [dialog?.employee_id, empDeptMap],
-  );
+  const isDeptDisabled = useMemo(() => {
+    if (!dialog?.employee_id) return false;
+    if (empDeptMap.has(dialog.employee_id)) return true;
+    if (!canManageShifts && currentEmployee && dialog.employee_id === currentEmployee.id) {
+      const depts = employeeDepts.filter((ed) => ed.employee_id === currentEmployee.id);
+      return depts.length === 1;
+    }
+    return false;
+  }, [dialog?.employee_id, empDeptMap, canManageShifts, currentEmployee, employeeDepts]);
 
   const goBack = () => {
     setAnchor(viewMode === "week" ? addWeeks(anchor, -1) : addMonths(anchor, -1));
@@ -415,7 +421,15 @@ export const CalendarPage = () => {
   const openNew = (day: Date) => {
     setReport(null);
     setCandidates(null);
-    setDialog(emptyDialog(new Date(day)));
+    const base = emptyDialog(new Date(day));
+    if (!canManageShifts && currentEmployee) {
+      base.employee_id = currentEmployee.id;
+      const depts = employeeDepts.filter((ed) => ed.employee_id === currentEmployee.id);
+      if (depts.length === 1) {
+        base.department_id = depts[0].department_id;
+      }
+    }
+    setDialog(base);
   };
 
   const openEdit = (a: AssignmentRow) => {
@@ -435,7 +449,7 @@ export const CalendarPage = () => {
 
   const onSubmit = (e: FormEvent) => {
     e.preventDefault();
-    if (!dialog || !canManageShifts) return;
+    if (!dialog || !canProposeShifts) return;
     if (!dialog.employee_id) {
       toast.error("Select an employee");
       return;
@@ -600,7 +614,7 @@ export const CalendarPage = () => {
                         </div>
                         <div className="text-sm font-semibold">{format(d, "d MMM")}</div>
                       </div>
-                      <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => canManageShifts ? openNew(d) : undefined} disabled={!canManageShifts}>
+                      <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => canProposeShifts ? openNew(d) : undefined} disabled={!canProposeShifts}>
                         <Plus className="size-3.5" />
                       </Button>
                     </div>
@@ -612,15 +626,20 @@ export const CalendarPage = () => {
                         return (
                           <button
                             key={a.id}
-                            onClick={() => canManageShifts ? openEdit(a) : undefined}
+                            onClick={() => canProposeShifts ? openEdit(a) : undefined}
                             className="w-full text-left rounded-md px-2 py-1.5 text-xs border border-border/40 hover:bg-background/70"
                             style={{
                               borderLeftWidth: 3,
                               borderLeftColor: dep?.color_code ?? "#3b82f6",
                             }}
                           >
-                            <div className="font-medium truncate">
+                            <div className="font-medium truncate flex items-center gap-1.5">
                               {emp ? `${emp.first_name} ${emp.last_name}` : "—"}
+                              {a.assignment_status === "Staff_Proposed" && (
+                                <span className="text-[9px] uppercase tracking-wider text-amber-600 dark:text-amber-400 font-semibold shrink-0">
+                                  [{t("admin.shiftProposals.pending")}]
+                                </span>
+                              )}
                             </div>
                             <div className="text-[10px] text-muted-foreground truncate">
                               {tmpl?.shift_code ? `${tmpl.shift_code} · ${t(`templates.codes.${tmpl.shift_code}`, tmpl.shift_code)} · ` : ""}{format(parseISO(a.actual_start_timestamp), "HH:mm")}–{format(parseISO(a.actual_end_timestamp), "HH:mm")}
@@ -660,7 +679,7 @@ export const CalendarPage = () => {
                         <span className="text-xs uppercase text-muted-foreground font-medium">{format(d, "EEE")}</span>
                         <span className="text-base font-semibold">{format(d, "d MMM")}</span>
                       </div>
-                      {canManageShifts && (
+                      {canProposeShifts && (
                         <button
                           onClick={() => openNew(d)}
                           className="flex items-center justify-center min-h-11 min-w-11 rounded-full bg-primary/10 text-primary active:bg-primary/20 transition-colors"
@@ -705,13 +724,18 @@ export const CalendarPage = () => {
                         return (
                           <button
                             key={a.id}
-                            onClick={() => canManageShifts ? openEdit(a) : undefined}
+                            onClick={() => canProposeShifts ? openEdit(a) : undefined}
                             className="w-full text-left rounded-xl px-4 py-3 text-sm border border-border/40 hover:bg-background/70 flex items-center gap-3 min-h-[44px]"
                             style={{ borderLeftWidth: 4, borderLeftColor: dep?.color_code ?? "#3b82f6" }}
                           >
                             <div className="flex-1 min-w-0">
-                              <div className="font-semibold truncate">
+                              <div className="font-semibold truncate flex items-center gap-1.5">
                                 {emp ? `${emp.first_name} ${emp.last_name}` : "—"}
+                                {a.assignment_status === "Staff_Proposed" && (
+                                  <span className="text-[10px] uppercase tracking-wider text-amber-600 dark:text-amber-400 font-semibold shrink-0">
+                                    [{t("admin.shiftProposals.pending")}]
+                                  </span>
+                                )}
                               </div>
                               <div className="text-xs text-muted-foreground truncate mt-0.5">
                                 {tmpl?.shift_code ? `${tmpl.shift_code} · ${t(`templates.codes.${tmpl.shift_code}`, tmpl.shift_code)} · ` : ""}{format(parseISO(a.actual_start_timestamp), "HH:mm")}–{format(parseISO(a.actual_end_timestamp), "HH:mm")}
@@ -740,7 +764,7 @@ export const CalendarPage = () => {
             employees={employees ?? []}
             onOpenNew={openNew}
             onOpenEdit={openEdit}
-            canManageAll={canManageShifts}
+            canManageAll={canProposeShifts}
           />
         )}
       </GlassPanel>
@@ -759,6 +783,7 @@ export const CalendarPage = () => {
                   <Label>{t("roster.employee")}</Label>
                   <Select
                     value={dialog.employee_id}
+                    disabled={!canManageShifts}
                     onValueChange={(v) => {
                       if (v === "__none" || !v) {
                         setDialog({ ...dialog, employee_id: "" });
@@ -977,7 +1002,7 @@ export const CalendarPage = () => {
                   <Button type="button" variant="ghost" className="min-h-11 md:min-h-9" onClick={() => setDialog(null)}>
                     {t("common.cancel")}
                   </Button>
-                  {canManageShifts && (
+                  {canProposeShifts && (
                     <Button type="submit" className="min-h-11 md:min-h-9" disabled={!dialog.employee_id || !dialog.department_id || upsertMut.isPending}>
                       {t("common.save")}
                     </Button>

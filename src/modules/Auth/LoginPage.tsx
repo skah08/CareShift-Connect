@@ -18,6 +18,8 @@ export const LoginPage = () => {
   const { signIn, signUp, signInWithOAuth } = useAuth();
   const navigate = useNavigate();
   const [mode, setMode] = useState<"signin" | "signup">("signin");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
@@ -28,9 +30,22 @@ export const LoginPage = () => {
     setBusy(true);
     setError(null);
     try {
-      if (mode === "signin") await signIn({ email, password });
-      else await signUp({ email, password });
-      await navigate({ to: "/dashboard" });
+      if (mode === "signin") {
+        await signIn({ email, password });
+        await navigate({ to: "/dashboard" });
+      } else {
+        const result = await signUp({
+          email,
+          password,
+          first_name: firstName,
+          last_name: lastName,
+        });
+        if (result.needsEmailConfirmation) {
+          await navigate({ to: "/verify-email", search: { email } });
+        } else {
+          await navigate({ to: "/dashboard" });
+        }
+      }
     } catch (err) {
       setError((err as Error).message);
     } finally {
@@ -67,6 +82,30 @@ export const LoginPage = () => {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          {mode === "signup" && (
+            <>
+              <div className="space-y-2">
+                <Label htmlFor="firstName">{t("auth.firstName")}</Label>
+                <Input
+                  id="firstName"
+                  autoComplete="given-name"
+                  required
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="lastName">{t("auth.lastName")}</Label>
+                <Input
+                  id="lastName"
+                  autoComplete="family-name"
+                  required
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                />
+              </div>
+            </>
+          )}
           <div className="space-y-2">
             <Label htmlFor="email">{t("common.email")}</Label>
             <Input

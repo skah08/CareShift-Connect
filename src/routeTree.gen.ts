@@ -9,6 +9,8 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as WaitingRouteImport } from './routes/waiting'
+import { Route as VerifyEmailRouteImport } from './routes/verify-email'
 import { Route as StaffRouteImport } from './routes/staff'
 import { Route as RoadmapRouteImport } from './routes/roadmap'
 import { Route as PermissionsRouteImport } from './routes/permissions'
@@ -21,8 +23,20 @@ import { Route as CalendarRouteImport } from './routes/calendar'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminTenantsRouteImport } from './routes/admin/tenants'
 import { Route as AdminTemplatesRouteImport } from './routes/admin/templates'
+import { Route as AdminShiftProposalsRouteImport } from './routes/admin/shift-proposals'
+import { Route as AdminPendingApprovalsRouteImport } from './routes/admin/pending-approvals'
 import { Route as AdminComplianceRouteImport } from './routes/admin/compliance'
 
+const WaitingRoute = WaitingRouteImport.update({
+  id: '/waiting',
+  path: '/waiting',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const VerifyEmailRoute = VerifyEmailRouteImport.update({
+  id: '/verify-email',
+  path: '/verify-email',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const StaffRoute = StaffRouteImport.update({
   id: '/staff',
   path: '/staff',
@@ -83,6 +97,16 @@ const AdminTemplatesRoute = AdminTemplatesRouteImport.update({
   path: '/admin/templates',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminShiftProposalsRoute = AdminShiftProposalsRouteImport.update({
+  id: '/admin/shift-proposals',
+  path: '/admin/shift-proposals',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminPendingApprovalsRoute = AdminPendingApprovalsRouteImport.update({
+  id: '/admin/pending-approvals',
+  path: '/admin/pending-approvals',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminComplianceRoute = AdminComplianceRouteImport.update({
   id: '/admin/compliance',
   path: '/admin/compliance',
@@ -100,7 +124,11 @@ export interface FileRoutesByFullPath {
   '/permissions': typeof PermissionsRoute
   '/roadmap': typeof RoadmapRoute
   '/staff': typeof StaffRoute
+  '/verify-email': typeof VerifyEmailRoute
+  '/waiting': typeof WaitingRoute
   '/admin/compliance': typeof AdminComplianceRoute
+  '/admin/pending-approvals': typeof AdminPendingApprovalsRoute
+  '/admin/shift-proposals': typeof AdminShiftProposalsRoute
   '/admin/templates': typeof AdminTemplatesRoute
   '/admin/tenants': typeof AdminTenantsRoute
 }
@@ -115,7 +143,11 @@ export interface FileRoutesByTo {
   '/permissions': typeof PermissionsRoute
   '/roadmap': typeof RoadmapRoute
   '/staff': typeof StaffRoute
+  '/verify-email': typeof VerifyEmailRoute
+  '/waiting': typeof WaitingRoute
   '/admin/compliance': typeof AdminComplianceRoute
+  '/admin/pending-approvals': typeof AdminPendingApprovalsRoute
+  '/admin/shift-proposals': typeof AdminShiftProposalsRoute
   '/admin/templates': typeof AdminTemplatesRoute
   '/admin/tenants': typeof AdminTenantsRoute
 }
@@ -131,7 +163,11 @@ export interface FileRoutesById {
   '/permissions': typeof PermissionsRoute
   '/roadmap': typeof RoadmapRoute
   '/staff': typeof StaffRoute
+  '/verify-email': typeof VerifyEmailRoute
+  '/waiting': typeof WaitingRoute
   '/admin/compliance': typeof AdminComplianceRoute
+  '/admin/pending-approvals': typeof AdminPendingApprovalsRoute
+  '/admin/shift-proposals': typeof AdminShiftProposalsRoute
   '/admin/templates': typeof AdminTemplatesRoute
   '/admin/tenants': typeof AdminTenantsRoute
 }
@@ -148,7 +184,11 @@ export interface FileRouteTypes {
     | '/permissions'
     | '/roadmap'
     | '/staff'
+    | '/verify-email'
+    | '/waiting'
     | '/admin/compliance'
+    | '/admin/pending-approvals'
+    | '/admin/shift-proposals'
     | '/admin/templates'
     | '/admin/tenants'
   fileRoutesByTo: FileRoutesByTo
@@ -163,7 +203,11 @@ export interface FileRouteTypes {
     | '/permissions'
     | '/roadmap'
     | '/staff'
+    | '/verify-email'
+    | '/waiting'
     | '/admin/compliance'
+    | '/admin/pending-approvals'
+    | '/admin/shift-proposals'
     | '/admin/templates'
     | '/admin/tenants'
   id:
@@ -178,7 +222,11 @@ export interface FileRouteTypes {
     | '/permissions'
     | '/roadmap'
     | '/staff'
+    | '/verify-email'
+    | '/waiting'
     | '/admin/compliance'
+    | '/admin/pending-approvals'
+    | '/admin/shift-proposals'
     | '/admin/templates'
     | '/admin/tenants'
   fileRoutesById: FileRoutesById
@@ -194,13 +242,31 @@ export interface RootRouteChildren {
   PermissionsRoute: typeof PermissionsRoute
   RoadmapRoute: typeof RoadmapRoute
   StaffRoute: typeof StaffRoute
+  VerifyEmailRoute: typeof VerifyEmailRoute
+  WaitingRoute: typeof WaitingRoute
   AdminComplianceRoute: typeof AdminComplianceRoute
+  AdminPendingApprovalsRoute: typeof AdminPendingApprovalsRoute
+  AdminShiftProposalsRoute: typeof AdminShiftProposalsRoute
   AdminTemplatesRoute: typeof AdminTemplatesRoute
   AdminTenantsRoute: typeof AdminTenantsRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/waiting': {
+      id: '/waiting'
+      path: '/waiting'
+      fullPath: '/waiting'
+      preLoaderRoute: typeof WaitingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/verify-email': {
+      id: '/verify-email'
+      path: '/verify-email'
+      fullPath: '/verify-email'
+      preLoaderRoute: typeof VerifyEmailRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/staff': {
       id: '/staff'
       path: '/staff'
@@ -285,6 +351,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminTemplatesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/shift-proposals': {
+      id: '/admin/shift-proposals'
+      path: '/admin/shift-proposals'
+      fullPath: '/admin/shift-proposals'
+      preLoaderRoute: typeof AdminShiftProposalsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/pending-approvals': {
+      id: '/admin/pending-approvals'
+      path: '/admin/pending-approvals'
+      fullPath: '/admin/pending-approvals'
+      preLoaderRoute: typeof AdminPendingApprovalsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/compliance': {
       id: '/admin/compliance'
       path: '/admin/compliance'
@@ -306,7 +386,11 @@ const rootRouteChildren: RootRouteChildren = {
   PermissionsRoute: PermissionsRoute,
   RoadmapRoute: RoadmapRoute,
   StaffRoute: StaffRoute,
+  VerifyEmailRoute: VerifyEmailRoute,
+  WaitingRoute: WaitingRoute,
   AdminComplianceRoute: AdminComplianceRoute,
+  AdminPendingApprovalsRoute: AdminPendingApprovalsRoute,
+  AdminShiftProposalsRoute: AdminShiftProposalsRoute,
   AdminTemplatesRoute: AdminTemplatesRoute,
   AdminTenantsRoute: AdminTenantsRoute,
 }

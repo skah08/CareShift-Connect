@@ -2,7 +2,13 @@ import { createContext, useCallback, useEffect, useMemo, useState, type ReactNod
 import { toast } from "sonner";
 
 import { AuthService, supabase } from "@/services";
-import type { AppRole, HospishiftUser, SignInPayload, SignUpPayload } from "@/interfaces";
+import type {
+  AppRole,
+  HospishiftUser,
+  SignInPayload,
+  SignUpPayload,
+  SignUpResult,
+} from "@/interfaces";
 
 interface AuthContextValue {
   user: HospishiftUser | null;
@@ -11,7 +17,7 @@ interface AuthContextValue {
   hasRole: (role: AppRole) => boolean;
   hasAnyRole: (roles: AppRole[]) => boolean;
   signIn: (payload: SignInPayload) => Promise<void>;
-  signUp: (payload: SignUpPayload) => Promise<void>;
+  signUp: (payload: SignUpPayload) => Promise<SignUpResult>;
   signInWithOAuth: (provider: string) => Promise<void>;
   signOut: () => Promise<void>;
   refresh: () => Promise<void>;
@@ -78,8 +84,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const signUp = useCallback(
     async (payload: SignUpPayload) => {
       try {
-        await AuthService.signUp(payload);
-        await refresh();
+        const data = await AuthService.signUp(payload);
+        if (data.session) {
+          await refresh();
+        }
+        return { needsEmailConfirmation: !data.session };
       } catch (err) {
         console.error("[Auth] signUp failed", err);
         toast.error((err as Error).message);
