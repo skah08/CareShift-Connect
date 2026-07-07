@@ -17,6 +17,13 @@ export const protectedRoutes: RouteConfig[] = [
     showInSidebar: true,
   },
   {
+    path: "/roadmap",
+    labelKey: "sidebar.roadmap",
+    iconKey: "roadmap",
+    isProtected: false,
+    showInSidebar: false,
+  },
+  {
     path: "/dashboard",
     labelKey: "sidebar.dashboard",
     iconKey: "dashboard",

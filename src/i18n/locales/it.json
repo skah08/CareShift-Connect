@@ -27,6 +27,7 @@
     "compliance": "Conformit\u00e0",
     "templates": "Template Turni",
     "gettingStarted": "Guida Introduttiva",
+    "roadmap": "Roadmap",
     "collapse": "Comprimi menu",
     "expand": "Espandi menu"
   },
@@ -364,6 +365,92 @@
       "staff": {
         "title": "Personale",
         "body": "Gestisci tutti i dipendenti, inclusi ruoli, tipi di contratto, valori FTE e collegamenti ai reparti."
+      }
+    }
+  },
+  "roadmap": {
+    "title": "Roadmap",
+    "subtitle": "Stato di avanzamento delle funzionalit\u00e0 rispetto alle specifiche",
+    "implemented": "Implementato",
+    "partial": "Parziale",
+    "missing": "Non implementato",
+    "implementable": "Implementabile",
+    "legend": {
+      "implemented": "Completamente implementato e operativo",
+      "partial": "Parzialmente implementato — vedi dettagli",
+      "missing": "Non ancora iniziato"
+    },
+    "sections": {
+      "compliance": "Conformit\u00e0 Normativa",
+      "enterprise": "Architettura Enterprise",
+      "planning": "Motore di Pianificazione",
+      "ui": "UI/UX & Mobile",
+      "security": "Sicurezza e GDPR"
+    },
+    "features": {
+      "rest": {
+        "title": "Riposo 11h (Direttiva UE)",
+        "note": "Applicato dal motore di conformit\u00e0 su ogni assegnazione"
+      },
+      "weeklyLimit": {
+        "title": "Limite 48h Settimanali + Straordinari",
+        "note": "Monitorato per dipendente con avvisi"
+      },
+      "onCall": {
+        "title": "Reperibilit\u00e0 / Pronta Disponibilit\u00e0",
+        "note": "Enum coverage_type + dropdown esiste. Manca: logica rotazione, transizione automatica a chiamata, riposo compensativo, regole economiche"
+      },
+      "fairness": {
+        "title": "Algoritmo di Equit\u00e0 Distributiva",
+        "note": "Nessun tracciamento di weekend, notti o festivi per dipendente"
+      },
+      "rbac": {
+        "title": "RBAC Gerarchico",
+        "note": "Super admin (cross-tenant), capisala (permessi granulari), personale (sola lettura)"
+      },
+      "badge": {
+        "title": "Integrazione Badge / Timbratura",
+        "note": "Nessuna timbratura entrata/uscita, nessuna API Zucchetti/Kronos, nessun alert scostamento"
+      },
+      "payroll": {
+        "title": "Export Paghe",
+        "note": "Nessuna generazione tracciati CSV/Excel per sistemi paghe"
+      },
+      "skillMatrix": {
+        "title": "Matrice Competenze (Dotazione Minima)",
+        "note": "Schema DB + validazione certificazioni esiste. Manca: UI dotazione minima, validazione copertura, indicatore 'Turno non in sicurezza'"
+      },
+      "substitution": {
+        "title": "Sostituzioni Urgenti",
+        "note": "findReplacements esiste. Manca: filtro geografico, consapevolezza reperibilit\u00e0, matching per skill (non solo ruolo)"
+      },
+      "autoScheduling": {
+        "title": "Auto-Pianificazione",
+        "note": "Nessuna generazione algoritmica turni mensili (opzionale / avanzato)"
+      },
+      "dragDrop": {
+        "title": "Calendario Drag & Drop",
+        "note": "Drag-and-drop completo con dndkit per pianificazione rapida"
+      },
+      "mobile": {
+        "title": "App Mobile (PWA)",
+        "note": "Web app responsive funziona su mobile. Manca: manifest PWA, notifiche push, supporto offline"
+      },
+      "swapModule": {
+        "title": "Scambi Peer-to-Peer",
+        "note": "Flusso completo: proposta \u2192 accettazione \u2192 approvazione manager con ricontrollo conformit\u00e0"
+      },
+      "multiTenant": {
+        "title": "Isolamento Multi-Tenant",
+        "note": "Politiche RLS rigide prevengono perdite di dati tra tenant"
+      },
+      "audit": {
+        "title": "Tracciamento (Audit Trail)",
+        "note": "Tabella audit_log con RLS immutabile esiste. Manca: scritture server su ogni modifica, UI visualizzazione, catena hash, tracciamento IP"
+      },
+      "encryption": {
+        "title": "Crittografia (TLS / HTTPS)",
+        "note": "Garantita dall'infrastruttura Supabase e Vercel"
       }
     }
   }

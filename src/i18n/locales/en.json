@@ -27,6 +27,7 @@
     "compliance": "Compliance",
     "templates": "Templates",
     "gettingStarted": "Getting Started",
+    "roadmap": "Roadmap",
     "collapse": "Collapse sidebar",
     "expand": "Expand sidebar"
   },
@@ -364,6 +365,92 @@
       "staff": {
         "title": "Staff",
         "body": "Manage all employee records, including roles, contract types, FTE values, and department links."
+      }
+    }
+  },
+  "roadmap": {
+    "title": "Roadmap",
+    "subtitle": "Feature progress overview against the target specification",
+    "implemented": "Implemented",
+    "partial": "Partial",
+    "missing": "Not implemented",
+    "implementable": "Implementable",
+    "legend": {
+      "implemented": "Fully implemented and operational",
+      "partial": "Partially implemented — see details below",
+      "missing": "Not yet started"
+    },
+    "sections": {
+      "compliance": "Legal Compliance",
+      "enterprise": "Enterprise Architecture",
+      "planning": "Planning Engine",
+      "ui": "UI/UX & Mobile",
+      "security": "Security & GDPR"
+    },
+    "features": {
+      "rest": {
+        "title": "11h Daily Rest (EU Directive)",
+        "note": "Enforced by compliance engine on every assignment"
+      },
+      "weeklyLimit": {
+        "title": "48h Weekly Limit + Overtime",
+        "note": "Monitored per employee with alerts"
+      },
+      "onCall": {
+        "title": "On-call / Reperibilit\u00e0",
+        "note": "Coverage type enum + dropdown exist. Missing: rotation logic, automatic active-call transition, compensatory rest, pay rules"
+      },
+      "fairness": {
+        "title": "Fair Distribution Algorithm",
+        "note": "No tracking of weekend, night, or holiday assignments per employee"
+      },
+      "rbac": {
+        "title": "Hierarchical RBAC",
+        "note": "Super admin (cross-tenant), department managers (granular permissions), staff (read-only)"
+      },
+      "badge": {
+        "title": "Badge / Timesheet Integration",
+        "note": "No clock-in/out, no Zucchetti/Kronos APIs, no real-time discrepancy alerts"
+      },
+      "payroll": {
+        "title": "Payroll Export",
+        "note": "No CSV/Excel record generation for payroll systems"
+      },
+      "skillMatrix": {
+        "title": "Skill Matrix (Min. Staffing)",
+        "note": "DB schema + cert validation exist. Missing: min_staffing UI, coverage safety validation, 'Unsafe shift' indicator"
+      },
+      "substitution": {
+        "title": "Urgent Substitutions",
+        "note": "findReplacements exists. Missing: geographic filter, on-call awareness, skill-based (not just role) matching"
+      },
+      "autoScheduling": {
+        "title": "Auto-Scheduling",
+        "note": "No algorithmic monthly roster generation (optional / advanced)"
+      },
+      "dragDrop": {
+        "title": "Drag & Drop Calendar",
+        "note": "Full drag-and-drop with dndkit for quick scheduling"
+      },
+      "mobile": {
+        "title": "Mobile App (PWA)",
+        "note": "Responsive web app works on mobile. Missing: PWA manifest, push notifications, offline support"
+      },
+      "swapModule": {
+        "title": "Peer-to-Peer Swaps",
+        "note": "Complete workflow: propose \u2192 accept \u2192 manager approve with compliance re-check"
+      },
+      "multiTenant": {
+        "title": "Multi-Tenant Isolation",
+        "note": "Strict RLS policies prevent cross-tenant data leaks"
+      },
+      "audit": {
+        "title": "Audit Trail",
+        "note": "audit_log table with immutable RLS exists. Missing: server writes on every change, audit viewer UI, hash chain, IP tracking"
+      },
+      "encryption": {
+        "title": "Encryption (TLS / HTTPS)",
+        "note": "Enforced by Supabase and Vercel infrastructure"
       }
     }
   }

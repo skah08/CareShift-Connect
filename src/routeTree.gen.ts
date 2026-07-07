@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as StaffRouteImport } from './routes/staff'
+import { Route as RoadmapRouteImport } from './routes/roadmap'
 import { Route as PermissionsRouteImport } from './routes/permissions'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as LoginRouteImport } from './routes/login'
@@ -25,6 +26,11 @@ import { Route as AdminComplianceRouteImport } from './routes/admin/compliance'
 const StaffRoute = StaffRouteImport.update({
   id: '/staff',
   path: '/staff',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RoadmapRoute = RoadmapRouteImport.update({
+  id: '/roadmap',
+  path: '/roadmap',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PermissionsRoute = PermissionsRouteImport.update({
@@ -92,6 +98,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/onboarding': typeof OnboardingRoute
   '/permissions': typeof PermissionsRoute
+  '/roadmap': typeof RoadmapRoute
   '/staff': typeof StaffRoute
   '/admin/compliance': typeof AdminComplianceRoute
   '/admin/templates': typeof AdminTemplatesRoute
@@ -106,6 +113,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/onboarding': typeof OnboardingRoute
   '/permissions': typeof PermissionsRoute
+  '/roadmap': typeof RoadmapRoute
   '/staff': typeof StaffRoute
   '/admin/compliance': typeof AdminComplianceRoute
   '/admin/templates': typeof AdminTemplatesRoute
@@ -121,6 +129,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/onboarding': typeof OnboardingRoute
   '/permissions': typeof PermissionsRoute
+  '/roadmap': typeof RoadmapRoute
   '/staff': typeof StaffRoute
   '/admin/compliance': typeof AdminComplianceRoute
   '/admin/templates': typeof AdminTemplatesRoute
@@ -137,6 +146,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/onboarding'
     | '/permissions'
+    | '/roadmap'
     | '/staff'
     | '/admin/compliance'
     | '/admin/templates'
@@ -151,6 +161,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/onboarding'
     | '/permissions'
+    | '/roadmap'
     | '/staff'
     | '/admin/compliance'
     | '/admin/templates'
@@ -165,6 +176,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/onboarding'
     | '/permissions'
+    | '/roadmap'
     | '/staff'
     | '/admin/compliance'
     | '/admin/templates'
@@ -180,6 +192,7 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   OnboardingRoute: typeof OnboardingRoute
   PermissionsRoute: typeof PermissionsRoute
+  RoadmapRoute: typeof RoadmapRoute
   StaffRoute: typeof StaffRoute
   AdminComplianceRoute: typeof AdminComplianceRoute
   AdminTemplatesRoute: typeof AdminTemplatesRoute
@@ -193,6 +206,13 @@ declare module '@tanstack/react-router' {
       path: '/staff'
       fullPath: '/staff'
       preLoaderRoute: typeof StaffRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/roadmap': {
+      id: '/roadmap'
+      path: '/roadmap'
+      fullPath: '/roadmap'
+      preLoaderRoute: typeof RoadmapRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/permissions': {
@@ -284,6 +304,7 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   OnboardingRoute: OnboardingRoute,
   PermissionsRoute: PermissionsRoute,
+  RoadmapRoute: RoadmapRoute,
   StaffRoute: StaffRoute,
   AdminComplianceRoute: AdminComplianceRoute,
   AdminTemplatesRoute: AdminTemplatesRoute,
