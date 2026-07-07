@@ -2,19 +2,19 @@ import { createFileRoute } from "@tanstack/react-router";
 
 import { AppShell } from "@/components/AppShell";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
-import { TenantAdminPage } from "@/modules/Admin/TenantAdminPage";
+import { ShiftTemplatesPage } from "@/modules/Admin/ShiftTemplatesPage";
 
-export const Route = createFileRoute("/admin/tenants")({
+export const Route = createFileRoute("/admin/templates")({
   head: () => ({
     meta: [
-      { title: "Tenants — HospiShift" },
-      { name: "description", content: "Manage organisations." },
+      { title: "Shift Templates — HospiShift" },
+      { name: "description", content: "Manage shift templates." },
     ],
   }),
   component: () => (
     <ProtectedRoute requiredRoles={["admin"]}>
       <AppShell>
-        <TenantAdminPage />
+        <ShiftTemplatesPage />
       </AppShell>
     </ProtectedRoute>
   ),

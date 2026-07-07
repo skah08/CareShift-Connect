@@ -84,7 +84,7 @@ export const TenantAdminPage = () => {
     confirmName === deleteTarget?.name && confirmDelete === "DELETE";
 
   return (
-    <div className="space-y-6 max-w-4xl">
+    <div className="space-y-6 max-w-4xl mx-auto">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-2xl sm:text-3xl font-semibold">Tenant Management</h1>

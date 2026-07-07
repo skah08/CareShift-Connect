@@ -1,6 +1,6 @@
 {
   "app": {
-    "name": "Hospishift",
+    "name": "HospiShift",
     "tagline": "Gestione Turni Ospedalieri"
   },
   "common": {
@@ -24,6 +24,8 @@
     "departments": "Reparti",
     "permissions": "Permessi",
     "tenants": "Organizzazioni",
+    "compliance": "Conformit\u00e0",
+    "templates": "Template Turni",
     "collapse": "Comprimi menu",
     "expand": "Espandi menu"
   },
@@ -118,6 +120,34 @@
     "cost": "Centro di costo",
     "colour": "Colore"
   },
+  "permissions": {
+    "title": "Permessi",
+    "subtitle": "Assegna o rimuovi permessi per ogni utente del tenant.",
+    "user": "Utente",
+    "categories": {
+      "calendar": "Calendario",
+      "employees": "Dipendenti",
+      "departments": "Reparti",
+      "leaves": "Ferie e Permessi",
+      "swaps": "Scambi Turni",
+      "permissions": "Permessi",
+      "reports": "Report"
+    },
+    "labels": {
+      "calendar.view": "Visualizza calendario",
+      "calendar.manage": "Gestisci tutti i turni",
+      "calendar.manage_department": "Gestisci turni del reparto",
+      "employees.view": "Visualizza dipendenti",
+      "employees.manage": "Gestisci dipendenti",
+      "departments.view": "Visualizza reparti",
+      "departments.manage": "Gestisci reparti",
+      "leaves.manage": "Gestisci ferie",
+      "leaves.manage_department": "Gestisci ferie del reparto",
+      "swaps.approve": "Approva scambi turni",
+      "permissions.manage": "Gestisci permessi utente",
+      "reports.view": "Visualizza report"
+    }
+  },
   "roster": {
     "newAssignment": "Nuovo turno",
     "editAssignment": "Modifica turno",
@@ -143,7 +173,7 @@
     "week": "Settimana"
   },
   "auth": {
-    "signInTitle": "Accedi a Hospishift",
+    "signInTitle": "Accedi a HospiShift",
     "signInSubtitle": "Gestisci i turni del tuo ospedale.",
     "noAccount": "Non hai un account?",
     "hasAccount": "Hai gi\u00e0 un account?",
@@ -152,5 +182,59 @@
     "orContinueWith": "Oppure continua con",
     "signInWithGoogle": "Google",
     "signInWithApple": "Apple"
+  },
+  "compliance": {
+    "title": "Regole di conformit\u00e0",
+    "subtitle": "Configura orari di lavoro e regole di pianificazione",
+    "notFound": "Nessuna configurazione compliance trovata per questo tenant.",
+    "minDailyRest": "Riposo minimo giornaliero (ore)",
+    "maxWeeklyWork": "Ore massime settimanali",
+    "forbiddenSequence": "Sequenze turni vietate",
+    "nightShiftWindow": "Finestra turno notturno",
+    "autoApproval": "Approva automaticamente scambi peer-to-peer",
+    "addSequence": "Aggiungi sequenza",
+    "from": "Da",
+    "to": "A",
+    "remove": "Rimuovi",
+    "saved": "Impostazioni salvate",
+    "violations": {
+      "DOUBLE_BOOKING": "Il dipendente ha gi\u00e0 un turno che si sovrappone in questa finestra.",
+      "DAILY_REST": "Il riposo giornaliero di {{actual}}h \u00e8 inferiore al minimo richiesto di {{required}}h.",
+      "FORBIDDEN_SEQUENCE": "La sequenza turni {{from}} \u2192 {{to}} \u00e8 vietata dalla matrice ergonomica.",
+      "MISSING_SKILL": "Al dipendente manca una competenza richiesta per questo turno.",
+      "EXPIRED_CERTIFICATION": "Una certificazione richiesta \u00e8 scaduta prima della data del turno ({{expired_on}}).",
+      "MAX_WEEKLY_HOURS": "Pianificate {{actual}}h in una finestra mobile di 7 giorni (max {{max}}h)."
+    }
+  },
+  "templates": {
+    "title": "Template Turni",
+    "subtitle": "Definisci i tipi di turno disponibili per l'organizzazione",
+    "new": "Nuovo template",
+    "edit": "Modifica template",
+    "empty": "Nessun template ancora.",
+    "shiftCode": "Codice turno",
+    "shiftCodePlaceholder": "es. M, P, N",
+    "startTime": "Ora inizio",
+    "endTime": "Ora fine",
+    "breakMinutes": "Pausa (minuti)",
+    "isNight": "Turno notturno",
+    "night": "Notte",
+    "day": "Giorno",
+    "minBreak": "min pausa",
+    "updated": "Template aggiornato",
+    "created": "Template creato",
+    "deleted": "Template eliminato",
+    "deleteTitle": "Eliminare template?",
+    "deleteDescription": "Questo rimuover\u00e0 il template. I turni gi\u00e0 assegnati non verranno modificati.",
+    "deleteAction": "Elimina",
+    "codes": {
+      "M": "Mattina",
+      "P": "Pomeriggio",
+      "N": "Notte",
+      "G": "Giornaliero / Spezzato",
+      "TL": "Turno Lungo",
+      "TLN": "Turno Lungo Notte",
+      "I": "Intermedio / Supporto"
+    }
   }
 }

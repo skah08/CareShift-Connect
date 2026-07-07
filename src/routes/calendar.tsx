@@ -7,7 +7,7 @@ import { CalendarPage } from "@/modules/Calendar/CalendarPage";
 export const Route = createFileRoute("/calendar")({
   head: () => ({
     meta: [
-      { title: "Calendar \u2014 Hospishift" },
+      { title: "Calendar \u2014 HospiShift" },
       { name: "description", content: "Weekly and monthly shift calendar." },
     ],
   }),

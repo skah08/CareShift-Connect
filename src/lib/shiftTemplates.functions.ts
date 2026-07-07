@@ -56,3 +56,19 @@ export const upsertShiftTemplate = createServerFn({ method: "POST" })
     if (error) throw error;
     return { id: row.id };
   });
+
+export const deleteShiftTemplate = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((raw: unknown) =>
+    z.object({ id: z.string().uuid(), tenant_id: z.string().uuid() }).parse(raw),
+  )
+  .handler(async ({ data, context }) => {
+    const { supabase } = context;
+    const { error } = await supabase
+      .from("shift_templates")
+      .delete()
+      .eq("id", data.id)
+      .eq("tenant_id", data.tenant_id);
+    if (error) throw error;
+    return { ok: true };
+  });

@@ -50,9 +50,7 @@ import {
 import { useTenant } from "@/hooks/useTenant";
 import { useAuth } from "@/hooks/useAuth";
 import { usePermissions } from "@/hooks/usePermissions";
-import { listEmployees, listEmployeeDepartments } from "@/lib/employees.functions";
-import { listDepartments } from "@/lib/departments.functions";
-import { listShiftTemplates } from "@/lib/shiftTemplates.functions";
+import { getCalendarPageData } from "@/lib/calendar.functions";
 import {
   deleteAssignment,
   evaluateAssignment,
@@ -62,10 +60,24 @@ import {
   type ReplacementCandidate,
 } from "@/lib/roster.functions";
 import type { ComplianceReport } from "@/lib/compliance/types";
-import { listLeaves, upsertLeave, deleteLeave } from "@/lib/leaves.functions";
+import { upsertLeave, deleteLeave } from "@/lib/leaves.functions";
 import { MonthView } from "./MonthView";
 
-type AssignmentRow = Awaited<ReturnType<typeof listRosterRange>>[number];
+type AssignmentRow = {
+  id: string;
+  employee_id: string;
+  department_id: string;
+  shift_template_id: string | null;
+  shift_date: string;
+  actual_start_timestamp: string;
+  actual_end_timestamp: string;
+  assignment_status: string;
+  coverage_type: string | null;
+  notes: string | null;
+  employees: { first_name: string; last_name: string; primary_role: string } | null;
+  shift_templates: { shift_code: string; is_night_shift: boolean } | null;
+  departments: { department_name: string; color_code: string } | null;
+};
 
 type CoverageType = "Regular_Shift" | "On_Call_Active" | "On_Call_Passive" | "Mandatory_Overtime";
 
@@ -118,57 +130,32 @@ export const CalendarPage = () => {
     [weekStart],
   );
 
-  const employees = useQuery({
-    queryKey: ["employees", activeTenantId],
-    queryFn: () => listEmployees({ data: { tenant_id: activeTenantId! } }),
-    enabled: !!activeTenantId,
-  });
-  const departments = useQuery({
-    queryKey: ["departments", activeTenantId],
-    queryFn: () => listDepartments({ data: { tenant_id: activeTenantId! } }),
-    enabled: !!activeTenantId,
-  });
-  const templates = useQuery({
-    queryKey: ["templates", activeTenantId],
-    queryFn: () => listShiftTemplates({ data: { tenant_id: activeTenantId! } }),
-    enabled: !!activeTenantId,
-  });
-  const roster = useQuery({
-    queryKey: ["roster", activeTenantId, viewStart.toISOString(), viewEnd.toISOString()],
+  const batch = useQuery({
+    queryKey: ["cal", activeTenantId, viewStart.toISOString(), viewEnd.toISOString()],
     queryFn: () =>
-      listRosterRange({
+      getCalendarPageData({
         data: {
           tenant_id: activeTenantId!,
-          from: viewStart.toISOString(),
-          to: viewEnd.toISOString(),
+          view_from: viewStart.toISOString(),
+          view_to: viewEnd.toISOString(),
         },
       }),
     enabled: !!activeTenantId,
   });
 
-  const leaves = useQuery({
-    queryKey: ["leaves", activeTenantId, viewStart.toISOString(), viewEnd.toISOString()],
-    queryFn: () =>
-      listLeaves({
-        data: {
-          tenant_id: activeTenantId!,
-          from: viewStart.toISOString(),
-          to: viewEnd.toISOString(),
-        },
-      }),
-    enabled: !!activeTenantId,
-  });
+  const employees = batch.data?.employees ?? [];
+  const departments = batch.data?.departments ?? [];
+  const templates = batch.data?.templates ?? [];
+  const roster = batch.data?.roster ?? [];
+  const leaves = batch.data?.leaves ?? [];
+  const employeeDepts = batch.data?.employeeDepartments ?? [];
 
-  const employeeDepts = useQuery({
-    queryKey: ["employeeDepartments", activeTenantId],
-    queryFn: () => listEmployeeDepartments({ data: { tenant_id: activeTenantId! } }),
-    enabled: !!activeTenantId,
-  });
+  const isLoadingData = batch.isLoading;
 
   const currentEmployee = useMemo(() => {
     if (!user?.email) return null;
-    return (employees.data ?? []).find((e) => e.email === user.email) ?? null;
-  }, [employees.data, user?.email]);
+    return (employees ?? []).find((e) => e.email === user.email) ?? null;
+  }, [employees, user?.email]);
 
   const { permissions, superAdmin } = usePermissions();
   const tenantRole = activeTenant?.role;
@@ -178,47 +165,47 @@ export const CalendarPage = () => {
   const currentEmployeeDeptIds = useMemo(() => {
     if (!currentEmployee) return [] as string[];
     const deptSet = new Set<string>();
-    for (const a of roster.data ?? []) {
+    for (const a of roster ?? []) {
       if (a.employee_id === currentEmployee.id) deptSet.add(a.department_id);
     }
     return [...deptSet];
-  }, [currentEmployee, roster.data]);
+  }, [currentEmployee, roster]);
 
   const departmentOptions: MultiSelectOption[] = useMemo(
-    () => (departments.data ?? []).map((d) => ({ value: d.id, label: d.department_name })),
-    [departments.data],
+    () => (departments ?? []).map((d) => ({ value: d.id, label: d.department_name })),
+    [departments],
   );
   const employeeOptions: MultiSelectOption[] = useMemo(
     () =>
-      (employees.data ?? []).map((e) => ({
+      (employees ?? []).map((e) => ({
         value: e.id,
         label: `${e.first_name} ${e.last_name}`,
       })),
-    [employees.data],
+    [employees],
   );
 
   const empDeptMap = useMemo(() => {
     const m = new Map<string, string>();
-    for (const ed of employeeDepts.data ?? []) {
+    for (const ed of employeeDepts) {
       if (!m.has(ed.employee_id) || ed.is_primary) {
         m.set(ed.employee_id, ed.department_id);
       }
     }
     return m;
-  }, [employeeDepts.data]);
+  }, [employeeDepts]);
 
   const deptEmpIds = useMemo(() => {
     const m = new Map<string, string[]>();
-    for (const ed of employeeDepts.data ?? []) {
+    for (const ed of employeeDepts) {
       const arr = m.get(ed.department_id) ?? [];
       arr.push(ed.employee_id);
       m.set(ed.department_id, arr);
     }
     return m;
-  }, [employeeDepts.data]);
+  }, [employeeDepts]);
 
   const filteredAssignments = useMemo(() => {
-    let items = roster.data ?? [];
+    let items = roster ?? [];
 
     if (viewMode === "week") {
       items = items.filter((a) => {
@@ -242,7 +229,7 @@ export const CalendarPage = () => {
     }
 
     return items;
-  }, [roster.data, viewMode, weekStart, weekEnd, departmentFilter, myShiftsOnly, currentEmployee, employeeFilter, canManageAll, currentEmployeeDeptIds]);
+  }, [roster, viewMode, weekStart, weekEnd, departmentFilter, myShiftsOnly, currentEmployee, employeeFilter, canManageAll, currentEmployeeDeptIds]);
 
   const assignmentsByDay = useMemo(() => {
     const map = new Map<string, AssignmentRow[]>();
@@ -256,7 +243,7 @@ export const CalendarPage = () => {
   }, [filteredAssignments]);
 
   const leavesInWeek = useMemo(() => {
-    return (leaves.data ?? [])
+    return (leaves ?? [])
       .filter((l: any) => {
         const ls = parseISO(l.start_date);
         const le = parseISO(l.end_date);
@@ -271,11 +258,11 @@ export const CalendarPage = () => {
         const endIdx = differenceInCalendarDays(ve, weekStart);
         return { ...l, startIdx, endIdx };
       });
-  }, [leaves.data, weekStart, weekEnd]);
+  }, [leaves, weekStart, weekEnd]);
 
   const leavesByDay = useMemo(() => {
     const map = new Map<string, any[]>();
-    for (const l of leaves.data ?? []) {
+    for (const l of leaves ?? []) {
       const ls = parseISO(l.start_date);
       const le = parseISO(l.end_date);
       let cur = ls;
@@ -288,7 +275,7 @@ export const CalendarPage = () => {
       }
     }
     return map;
-  }, [leaves.data]);
+  }, [leaves]);
 
   const [dialog, setDialog] = useState<DialogState | null>(null);
   const [report, setReport] = useState<ComplianceReport | null>(null);
@@ -303,7 +290,7 @@ export const CalendarPage = () => {
   } | null>(null);
 
   const filteredEmployees = useMemo(() => {
-    const all = employees.data ?? [];
+    const all = employees ?? [];
     if (!dialog?.department_id) return all;
     const ids = deptEmpIds.get(dialog.department_id);
     if (!ids?.length) return all;
@@ -313,7 +300,7 @@ export const CalendarPage = () => {
       if (cur) filtered.push(cur);
     }
     return filtered;
-  }, [dialog?.department_id, dialog?.employee_id, employees.data, deptEmpIds]);
+  }, [dialog?.department_id, dialog?.employee_id, employees, deptEmpIds]);
 
   const isDeptDisabled = useMemo(
     () => !!dialog?.employee_id && empDeptMap.has(dialog.employee_id),
@@ -354,7 +341,7 @@ export const CalendarPage = () => {
       if (res.ok) {
         toast.success(t("common.save"));
         setDialog(null);
-        qc.invalidateQueries({ queryKey: ["roster", activeTenantId] });
+        qc.invalidateQueries({ queryKey: ["cal", activeTenantId] });
       } else {
         toast.error(t("roster.hardIssues"));
       }
@@ -377,6 +364,7 @@ export const CalendarPage = () => {
       });
     },
     onSuccess: (r) => setReport(r),
+    onError: (err) => toast.error((err as Error).message),
   });
 
   const deleteMut = useMutation({
@@ -387,7 +375,7 @@ export const CalendarPage = () => {
     onSuccess: () => {
       toast.success(t("roster.delete"));
       setDialog(null);
-      qc.invalidateQueries({ queryKey: ["roster", activeTenantId] });
+      qc.invalidateQueries({ queryKey: ["cal", activeTenantId] });
     },
   });
 
@@ -419,7 +407,7 @@ export const CalendarPage = () => {
     onSuccess: () => {
       toast.success(t("common.save"));
       setLeaveDialog(null);
-      qc.invalidateQueries({ queryKey: ["leaves", activeTenantId] });
+      qc.invalidateQueries({ queryKey: ["cal", activeTenantId] });
     },
     onError: (err) => toast.error((err as Error).message),
   });
@@ -558,7 +546,7 @@ export const CalendarPage = () => {
             <div className="hidden md:grid md:grid-cols-7 md:gap-2" style={{ gridTemplateRows: "auto 1fr" }}>
               {/* Multi-day leave bars */}
               {leavesInWeek.map((l: any) => {
-                const emp = (employees.data ?? []).find((e: any) => e.id === l.employee_id);
+                const emp = (employees ?? []).find((e: any) => e.id === l.employee_id);
                 const empName = emp ? `${emp.first_name} ${emp.last_name}` : "—";
                 const colStart = Math.max(0, l.startIdx) + 1;
                 const colEnd = Math.min(6, l.endIdx) + 2;
@@ -635,7 +623,7 @@ export const CalendarPage = () => {
                               {emp ? `${emp.first_name} ${emp.last_name}` : "—"}
                             </div>
                             <div className="text-[10px] text-muted-foreground truncate">
-                              {tmpl?.shift_code ?? ""} · {format(parseISO(a.actual_start_timestamp), "HH:mm")}–{format(parseISO(a.actual_end_timestamp), "HH:mm")}
+                              {tmpl?.shift_code ? `${tmpl.shift_code} · ${t(`templates.codes.${tmpl.shift_code}`, tmpl.shift_code)} · ` : ""}{format(parseISO(a.actual_start_timestamp), "HH:mm")}–{format(parseISO(a.actual_end_timestamp), "HH:mm")}
                             </div>
                             {dep && (
                               <div className="text-[10px] text-muted-foreground truncate">{dep.department_name}</div>
@@ -686,7 +674,7 @@ export const CalendarPage = () => {
                       {dayLeaves.length > 0 && (
                         <div className="space-y-2 mb-2">
                           {dayLeaves.map((l: any) => {
-                            const emp = (employees.data ?? []).find((e: any) => e.id === l.employee_id);
+                            const emp = (employees ?? []).find((e: any) => e.id === l.employee_id);
                             const empName = emp ? `${emp.first_name} ${emp.last_name}` : "—";
                             return (
                               <div
@@ -726,7 +714,7 @@ export const CalendarPage = () => {
                                 {emp ? `${emp.first_name} ${emp.last_name}` : "—"}
                               </div>
                               <div className="text-xs text-muted-foreground truncate mt-0.5">
-                                {tmpl?.shift_code ?? ""} · {format(parseISO(a.actual_start_timestamp), "HH:mm")}–{format(parseISO(a.actual_end_timestamp), "HH:mm")}
+                                {tmpl?.shift_code ? `${tmpl.shift_code} · ${t(`templates.codes.${tmpl.shift_code}`, tmpl.shift_code)} · ` : ""}{format(parseISO(a.actual_start_timestamp), "HH:mm")}–{format(parseISO(a.actual_end_timestamp), "HH:mm")}
                               </div>
                             </div>
                             {dep && (
@@ -749,7 +737,7 @@ export const CalendarPage = () => {
             anchor={anchor}
             assignmentsByDay={assignmentsByDay}
             leavesByDay={leavesByDay}
-            employees={employees.data ?? []}
+            employees={employees ?? []}
             onOpenNew={openNew}
             onOpenEdit={openEdit}
             canManageAll={canManageShifts}
@@ -813,7 +801,7 @@ export const CalendarPage = () => {
                     <SelectTrigger><SelectValue placeholder="—" /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="__none">—</SelectItem>
-                      {(departments.data ?? []).map((d) => (
+                      {(departments ?? []).map((d) => (
                         <SelectItem key={d.id} value={d.id}>{d.department_name}</SelectItem>
                       ))}
                     </SelectContent>
@@ -833,9 +821,9 @@ export const CalendarPage = () => {
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="__none">—</SelectItem>
-                      {(templates.data ?? []).map((tmpl) => (
+                      {(templates ?? []).map((tmpl) => (
                         <SelectItem key={tmpl.id} value={tmpl.id}>
-                          {tmpl.shift_code} ({tmpl.start_time?.slice(0, 5)}–{tmpl.end_time?.slice(0, 5)})
+                          {tmpl.shift_code} · {t(`templates.codes.${tmpl.shift_code}`, tmpl.shift_code)} ({tmpl.start_time?.slice(0, 5)}–{tmpl.end_time?.slice(0, 5)})
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -911,7 +899,7 @@ export const CalendarPage = () => {
                             <ul className="mt-0.5 space-y-0.5">
                               {c.hard_violations.map((v) => (
                                 <li key={v.code} className="text-[10px] text-destructive truncate">
-                                  {v.message}
+                                  {t(v.i18nKey, v.i18nParams ?? {})}
                                 </li>
                               ))}
                             </ul>
@@ -1022,7 +1010,7 @@ export const CalendarPage = () => {
                 >
                   <SelectTrigger><SelectValue placeholder="—" /></SelectTrigger>
                   <SelectContent>
-                    {(employees.data ?? []).map((e: any) => (
+                    {(employees ?? []).map((e: any) => (
                       <SelectItem key={e.id} value={e.id}>
                         {e.first_name} {e.last_name}
                       </SelectItem>
@@ -1090,7 +1078,7 @@ export const CalendarPage = () => {
                           .then(() => {
                             toast.success("Leave deleted");
                             setLeaveDialog(null);
-                            qc.invalidateQueries({ queryKey: ["leaves", activeTenantId] });
+                            qc.invalidateQueries({ queryKey: ["cal", activeTenantId] });
                           })
                           .catch((err) => toast.error((err as Error).message));
                       }}
@@ -1118,31 +1106,34 @@ export const CalendarPage = () => {
   );
 };
 
-const ComplianceReportView = ({ report }: { report: ComplianceReport }) => (
-  <div className="space-y-2 rounded-md border border-border/40 p-3 bg-background/40">
-    <div className="flex items-center gap-2">
-      {report.ok ? (
-        <Badge variant="secondary">✓ Compliant</Badge>
-      ) : (
-        <Badge variant="destructive">✗ {report.hardViolations.length} blocking</Badge>
+const ComplianceReportView = ({ report }: { report: ComplianceReport }) => {
+  const { t } = useTranslation();
+  return (
+    <div className="space-y-2 rounded-md border border-border/40 p-3 bg-background/40">
+      <div className="flex items-center gap-2">
+        {report.ok ? (
+          <Badge variant="secondary">✓ {t("roster.compliant")}</Badge>
+        ) : (
+          <Badge variant="destructive">✗ {report.hardViolations.length} {t("roster.hardIssues").toLowerCase()}</Badge>
+        )}
+        {report.softViolations.length > 0 && (
+          <Badge variant="outline">{report.softViolations.length} {t("roster.softIssues").toLowerCase()}</Badge>
+        )}
+      </div>
+      {report.hardViolations.length > 0 && (
+        <ul className="text-xs text-destructive space-y-0.5">
+          {report.hardViolations.map((v, i) => (
+            <li key={i}>• {t(v.i18nKey, v.i18nParams ?? {})}</li>
+          ))}
+        </ul>
       )}
       {report.softViolations.length > 0 && (
-        <Badge variant="outline">{report.softViolations.length} warnings</Badge>
+        <ul className="text-xs text-muted-foreground space-y-0.5">
+          {report.softViolations.map((v, i) => (
+            <li key={i}>• {t(v.i18nKey, v.i18nParams ?? {})}</li>
+          ))}
+        </ul>
       )}
     </div>
-    {report.hardViolations.length > 0 && (
-      <ul className="text-xs text-destructive space-y-0.5">
-        {report.hardViolations.map((v, i) => (
-          <li key={i}>• {v.message}</li>
-        ))}
-      </ul>
-    )}
-    {report.softViolations.length > 0 && (
-      <ul className="text-xs text-muted-foreground space-y-0.5">
-        {report.softViolations.map((v, i) => (
-          <li key={i}>• {v.message}</li>
-        ))}
-      </ul>
-    )}
-  </div>
-);
+  );
+};

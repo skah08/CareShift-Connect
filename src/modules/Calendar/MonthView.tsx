@@ -25,7 +25,21 @@ interface MonthViewProps {
   canManageAll: boolean;
 }
 
-type AssignmentRow = Awaited<ReturnType<typeof import("@/lib/roster.functions").listRosterRange>>[number];
+type AssignmentRow = {
+  id: string;
+  employee_id: string;
+  department_id: string;
+  shift_template_id: string | null;
+  shift_date: string;
+  actual_start_timestamp: string;
+  actual_end_timestamp: string;
+  assignment_status: string;
+  coverage_type: string | null;
+  notes: string | null;
+  employees: { first_name: string; last_name: string; primary_role: string } | null;
+  shift_templates: { shift_code: string; is_night_shift: boolean } | null;
+  departments: { department_name: string; color_code: string } | null;
+};
 
 export const MonthView = ({ anchor, assignmentsByDay, leavesByDay, employees, onOpenNew, onOpenEdit, canManageAll }: MonthViewProps) => {
   const { t } = useTranslation();

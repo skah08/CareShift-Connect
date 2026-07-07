@@ -7,7 +7,7 @@ import { DepartmentsPage } from "@/modules/Departments/DepartmentsPage";
 export const Route = createFileRoute("/departments")({
   head: () => ({
     meta: [
-      { title: "Departments — Hospishift" },
+      { title: "Departments — HospiShift" },
       { name: "description", content: "Manage hospital departments and cost centres." },
     ],
   }),

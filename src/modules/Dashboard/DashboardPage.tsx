@@ -7,18 +7,38 @@ import { GlassPanel } from "@/components/GlassPanel";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/useAuth";
 import { useTenant } from "@/hooks/useTenant";
-import { usePermissions } from "@/hooks/usePermissions";
-import { listEmployees, listEmployeeDepartments } from "@/lib/employees.functions";
-import { listDepartments } from "@/lib/departments.functions";
-import { listRosterRange } from "@/lib/roster.functions";
-import { listLeaves } from "@/lib/leaves.functions";
+import { getDashboardData } from "@/lib/dashboard.functions";
 import { getPendingSwapRequests } from "@/lib/swaps.functions";
+
+type PermissionKey =
+  | "calendar_view" | "calendar_manage" | "calendar_manage_department"
+  | "employees_view" | "employees_manage"
+  | "departments_view" | "departments_manage"
+  | "leaves_manage" | "leaves_manage_department"
+  | "swaps_approve" | "permissions_manage" | "reports_view";
+
+const ALL_PERMS = new Set<PermissionKey>([
+  "calendar_view", "calendar_manage", "calendar_manage_department",
+  "employees_view", "employees_manage",
+  "departments_view", "departments_manage",
+  "leaves_manage", "leaves_manage_department",
+  "swaps_approve", "permissions_manage", "reports_view",
+]);
+
+function isSuperAdmin(userRoles: string[] | undefined, tenantRole: string | undefined) {
+  if (userRoles?.includes("admin")) return true;
+  if (tenantRole === "owner") return true;
+  return false;
+}
 
 export const DashboardPage = () => {
   const { t } = useTranslation();
   const { user } = useAuth();
   const { activeTenantId, activeTenant } = useTenant();
-  const { superAdmin, permissions } = usePermissions();
+
+  const userRoles = user?.roles ?? [];
+  const tenantRole = activeTenant?.role;
+  const superAdmin = isSuperAdmin(userRoles, tenantRole);
   const name = user?.details?.first_name ?? user?.email?.split("@")[0] ?? "";
 
   const now = useMemo(() => new Date(), []);
@@ -26,70 +46,60 @@ export const DashboardPage = () => {
   const weekEnd = useMemo(() => endOfWeek(now, { weekStartsOn: 1 }), [now]);
   const todayKey = useMemo(() => format(now, "yyyy-MM-dd"), [now]);
 
-  const employees = useQuery({
-    queryKey: ["employees", activeTenantId],
-    queryFn: () => listEmployees({ data: { tenant_id: activeTenantId! } }),
-    enabled: !!activeTenantId,
-  });
-  const departments = useQuery({
-    queryKey: ["departments", activeTenantId],
-    queryFn: () => listDepartments({ data: { tenant_id: activeTenantId! } }),
-    enabled: !!activeTenantId,
-  });
-  const roster = useQuery({
-    queryKey: ["roster-dash", activeTenantId, weekStart.toISOString()],
+  const batch = useQuery({
+    queryKey: ["dash", activeTenantId, weekStart.toISOString()],
     queryFn: () =>
-      listRosterRange({
+      getDashboardData({
         data: {
           tenant_id: activeTenantId!,
-          from: weekStart.toISOString(),
-          to: weekEnd.toISOString(),
+          week_from: weekStart.toISOString(),
+          week_to: weekEnd.toISOString(),
         },
       }),
     enabled: !!activeTenantId,
   });
-  const leaves = useQuery({
-    queryKey: ["leaves-dash", activeTenantId, weekStart.toISOString()],
-    queryFn: () =>
-      listLeaves({
-        data: {
-          tenant_id: activeTenantId!,
-          from: weekStart.toISOString(),
-          to: weekEnd.toISOString(),
-        },
-      }),
-    enabled: !!activeTenantId,
-  });
-  const employeeDepts = useQuery({
-    queryKey: ["employeeDepartments", activeTenantId],
-    queryFn: () => listEmployeeDepartments({ data: { tenant_id: activeTenantId! } }),
-    enabled: !!activeTenantId,
-  });
+
+  const userId = user?.id;
+
+  const canManage = useMemo(() => {
+    if (superAdmin) return true;
+    if (!batch.data?.permissions || !userId) return false;
+    return batch.data.permissions.some(
+      (p) => p.user_id === userId && p.permission_key === "permissions.manage",
+    );
+  }, [superAdmin, batch.data?.permissions, userId]);
+
   const pendingSwaps = useQuery({
     queryKey: ["pendingSwaps", activeTenantId],
     queryFn: () => getPendingSwapRequests({ data: { tenant_id: activeTenantId! } }),
-    enabled: !!activeTenantId,
+    enabled: !!activeTenantId && canManage,
     refetchInterval: 30_000,
   });
 
+  const employees = batch.data?.employees ?? [];
+  const departments = batch.data?.departments ?? [];
+  const roster = batch.data?.roster ?? [];
+  const leaves = batch.data?.leaves ?? [];
+  const employeeDepts = batch.data?.employeeDepartments ?? [];
+
   const shiftsToday = useMemo(
-    () => (roster.data ?? []).filter((a) => format(parseISO(a.actual_start_timestamp), "yyyy-MM-dd") === todayKey),
-    [roster.data, todayKey],
+    () => roster.filter((a) => format(parseISO(a.actual_start_timestamp), "yyyy-MM-dd") === todayKey),
+    [roster, todayKey],
   );
 
   const onLeaveToday = useMemo(
-    () => (leaves.data ?? []).filter((l) => l.start_date <= todayKey && l.end_date >= todayKey),
-    [leaves.data, todayKey],
+    () => leaves.filter((l) => l.start_date <= todayKey && l.end_date >= todayKey),
+    [leaves, todayKey],
   );
 
   const currentEmployee = useMemo(
-    () => (employees.data ?? []).find((e) => e.email === user?.email) ?? null,
-    [employees.data, user?.email],
+    () => employees.find((e) => e.email === user?.email) ?? null,
+    [employees, user?.email],
   );
 
   const myShifts = useMemo(
     () =>
-      (roster.data ?? [])
+      roster
         .filter(
           (a) =>
             currentEmployee &&
@@ -97,24 +107,16 @@ export const DashboardPage = () => {
             parseISO(a.actual_start_timestamp) >= now,
         )
         .slice(0, 3),
-    [roster.data, currentEmployee, now],
-  );
-
-  const upcoming = useMemo(
-    () =>
-      (roster.data ?? [])
-        .filter((a) => parseISO(a.actual_start_timestamp) >= now)
-        .slice(0, 5),
-    [roster.data, now],
+    [roster, currentEmployee, now],
   );
 
   const deptEmpCount = useMemo(() => {
     const map = new Map<string, number>();
-    for (const ed of employeeDepts.data ?? []) {
+    for (const ed of employeeDepts) {
       map.set(ed.department_id, (map.get(ed.department_id) ?? 0) + 1);
     }
     return map;
-  }, [employeeDepts.data]);
+  }, [employeeDepts]);
 
   const deptScheduledToday = useMemo(() => {
     const map = new Map<string, number>();
@@ -126,17 +128,15 @@ export const DashboardPage = () => {
 
   const deptCoverage = useMemo(
     () =>
-      (departments.data ?? []).map((d) => ({
+      departments.map((d) => ({
         ...d,
         total: deptEmpCount.get(d.id) ?? 0,
         scheduled: deptScheduledToday.get(d.id) ?? 0,
       })),
-    [departments.data, deptEmpCount, deptScheduledToday],
+    [departments, deptEmpCount, deptScheduledToday],
   );
 
   const days = useMemo(() => Array.from({ length: 7 }, (_, i) => addDays(weekStart, i)), [weekStart]);
-
-  const canManage = superAdmin || permissions.calendar_manage;
 
   return (
     <div className="space-y-6 max-w-6xl">
@@ -153,16 +153,16 @@ export const DashboardPage = () => {
           </p>
         </div>
         <Badge variant={canManage ? "default" : "secondary"}>
-          {canManage ? t("dashboard.admin") : activeTenant?.role ?? "staff"}
+          {canManage ? t("dashboard.admin") : tenantRole ?? "staff"}
         </Badge>
       </div>
 
       <div className="grid gap-4 grid-cols-2 sm:grid-cols-5">
-        <StatCard label={t("staff.title")} value={employees.data?.length ?? 0} />
-        <StatCard label={t("departments.title")} value={departments.data?.length ?? 0} />
+        <StatCard label={t("staff.title")} value={employees.length} />
+        <StatCard label={t("departments.title")} value={departments.length} />
         <StatCard label={t("dashboard.onShiftToday")} value={shiftsToday.length} />
         <StatCard label={t("dashboard.onLeaveToday")} value={onLeaveToday.length} />
-        <StatCard label={t("dashboard.shiftsThisWeek")} value={roster.data?.length ?? 0} />
+        <StatCard label={t("dashboard.shiftsThisWeek")} value={roster.length} />
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
@@ -216,7 +216,7 @@ export const DashboardPage = () => {
             ) : (
               <ul className="divide-y divide-border/50">
                 {onLeaveToday.slice(0, 6).map((l) => {
-                  const emp = (employees.data ?? []).find((e) => e.id === l.employee_id);
+                  const emp = employees.find((e) => e.id === l.employee_id);
                   return (
                     <li key={l.id} className="py-2 flex items-center justify-between text-sm">
                       <span className="font-medium">
@@ -230,14 +230,14 @@ export const DashboardPage = () => {
                 })}
               </ul>
             )}
-            {!onLeaveToday.length && leaves.data && leaves.data.length > 0 && (
+            {!onLeaveToday.length && leaves.length > 0 && (
               <details className="mt-1">
                 <summary className="text-xs text-muted-foreground cursor-pointer hover:text-foreground">
-                  {t("dashboard.laterThisWeek")} ({leaves.data.length})
+                  {t("dashboard.laterThisWeek")} ({leaves.length})
                 </summary>
                 <ul className="divide-y divide-border/50 mt-1 max-h-40 overflow-y-auto">
-                  {leaves.data.map((l) => {
-                    const emp = (employees.data ?? []).find((e) => e.id === l.employee_id);
+                  {leaves.map((l) => {
+                    const emp = employees.find((e) => e.id === l.employee_id);
                     return (
                       <li key={l.id} className="py-1.5 flex items-center justify-between text-xs">
                         <span>
@@ -270,7 +270,7 @@ export const DashboardPage = () => {
                       <li key={a.id} className="py-2 flex items-center justify-between text-sm">
                         <div>
                           <span className="font-medium">
-                            {tmpl?.shift_code ?? t("dashboard.shiftFallback")}
+                            {tmpl ? `${tmpl.shift_code} · ${t(`templates.codes.${tmpl.shift_code}`, tmpl.shift_code)}` : t("dashboard.shiftFallback")}
                           </span>
                           <span className="text-xs text-muted-foreground ml-2">
                             {dep?.department_name ?? ""}
@@ -361,7 +361,7 @@ export const DashboardPage = () => {
         <div className="grid grid-cols-7 gap-2 text-center">
           {days.map((d) => {
             const key = format(d, "yyyy-MM-dd");
-            const count = (roster.data ?? []).filter(
+            const count = roster.filter(
               (a) => format(parseISO(a.actual_start_timestamp), "yyyy-MM-dd") === key,
             ).length;
             const isToday = key === todayKey;

@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
@@ -12,11 +13,11 @@ import {
 } from "@/lib/permissions.functions";
 import {
   ALL_PERMISSIONS,
-  PERMISSION_LABELS,
   PERMISSION_CATEGORIES,
 } from "@/interfaces/Permission";
 
 export function PermissionsPage() {
+  const { t } = useTranslation();
   const { activeTenantId } = useTenant();
   const { superAdmin, permissions } = usePermissions();
   const qc = useQueryClient();
@@ -81,9 +82,9 @@ export function PermissionsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold">Permessi</h1>
+        <h1 className="text-2xl font-bold">{t("permissions.title")}</h1>
         <p className="text-muted-foreground text-sm mt-1">
-          Assegna o rimuovi permessi per ogni utente del tenant.
+          {t("permissions.subtitle")}
         </p>
       </div>
 
@@ -91,14 +92,16 @@ export function PermissionsPage() {
         <table className="w-full text-sm">
           <thead>
             <tr className="bg-muted/30 border-b border-border/40">
-              <th className="text-left px-4 py-3 font-medium min-w-[180px]">Utente</th>
-              {Object.entries(PERMISSION_CATEGORIES).map(([cat]) => (
+              <th className="text-left px-4 py-3 font-medium min-w-[180px]">
+                {t("permissions.user")}
+              </th>
+              {Object.entries(PERMISSION_CATEGORIES).map(([cat, perms]) => (
                 <th
                   key={cat}
-                  colSpan={PERMISSION_CATEGORIES[cat].length}
+                  colSpan={perms.length}
                   className="text-center px-2 py-3 font-medium text-xs uppercase text-muted-foreground border-l border-border/40"
                 >
-                  {cat}
+                  {t(`permissions.categories.${cat}`)}
                 </th>
               ))}
             </tr>
@@ -108,9 +111,8 @@ export function PermissionsPage() {
                 <th
                   key={key}
                   className="text-center px-1 py-2 text-[10px] font-normal text-muted-foreground border-l border-border/40 whitespace-nowrap"
-                  title={PERMISSION_LABELS[key]}
                 >
-                  {key.split(".")[1]}
+                  {t(`permissions.labels.${key}`)}
                 </th>
               ))}
             </tr>

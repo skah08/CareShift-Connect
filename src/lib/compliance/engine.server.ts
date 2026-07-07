@@ -1,7 +1,3 @@
-// Pure Rule Engine — no I/O.
-// All timestamps must be ISO UTC. All hour calculations use absolute
-// UTC minute differentials (see SRS §5.1 DST edge case).
-
 import type {
   AssignmentWindow,
   ComplianceReport,
@@ -37,6 +33,7 @@ export function checkOverlap(
         code: "DOUBLE_BOOKING",
         severity: "error",
         message: "Employee is already assigned to an overlapping shift in this window.",
+        i18nKey: "compliance.violations.DOUBLE_BOOKING",
         meta: { conflicting_assignment_id: a.id, department_id: a.department_id },
       };
     }
@@ -78,11 +75,14 @@ export function checkDailyRest(
 }
 
 function violation(code: "DAILY_REST", config: TenantComplianceConfig, restMs: number): ComplianceViolation {
+  const actual = restMs / MS_PER_HR;
   return {
     code,
     severity: "error",
-    message: `Daily rest of ${(restMs / MS_PER_HR).toFixed(1)}h is below the required minimum of ${config.min_daily_rest_hrs}h.`,
-    meta: { actual_rest_hrs: restMs / MS_PER_HR, required_hrs: config.min_daily_rest_hrs },
+    message: `Daily rest of ${actual.toFixed(1)}h is below the required minimum of ${config.min_daily_rest_hrs}h.`,
+    i18nKey: "compliance.violations.DAILY_REST",
+    i18nParams: { actual: actual.toFixed(1), required: config.min_daily_rest_hrs },
+    meta: { actual_rest_hrs: actual, required_hrs: config.min_daily_rest_hrs },
   };
 }
 
@@ -96,7 +96,6 @@ export function checkForbiddenSequence(
   const newStart = toMs(input.actual_start_timestamp);
   const newEnd = toMs(input.actual_end_timestamp);
 
-  // Find immediate previous and next assignments for same employee
   let prev: AssignmentWindow | null = null;
   let next: AssignmentWindow | null = null;
   for (const a of existing) {
@@ -120,6 +119,8 @@ export function checkForbiddenSequence(
       code: "FORBIDDEN_SEQUENCE",
       severity: "error",
       message: `Shift sequence ${prev.shift_code} → ${input.shift_code} is forbidden by the ergonomics matrix.`,
+      i18nKey: "compliance.violations.FORBIDDEN_SEQUENCE",
+      i18nParams: { from: prev.shift_code, to: input.shift_code },
       meta: { from: prev.shift_code, to: input.shift_code },
     };
   }
@@ -128,6 +129,8 @@ export function checkForbiddenSequence(
       code: "FORBIDDEN_SEQUENCE",
       severity: "error",
       message: `Shift sequence ${input.shift_code} → ${next.shift_code} is forbidden by the ergonomics matrix.`,
+      i18nKey: "compliance.violations.FORBIDDEN_SEQUENCE",
+      i18nParams: { from: input.shift_code, to: next.shift_code },
       meta: { from: input.shift_code, to: next.shift_code },
     };
   }
@@ -154,6 +157,7 @@ export function checkCertifications(
         code: "MISSING_SKILL",
         severity: "error",
         message: "Employee is missing a skill required for this shift slot.",
+        i18nKey: "compliance.violations.MISSING_SKILL",
         meta: { missing_skill_id: required },
       };
     }
@@ -162,6 +166,8 @@ export function checkCertifications(
         code: "EXPIRED_CERTIFICATION",
         severity: "error",
         message: "A required certification has expired before the shift date.",
+        i18nKey: "compliance.violations.EXPIRED_CERTIFICATION",
+        i18nParams: { expired_on: row.certification_expiry_date },
         meta: { skill_id: required, expired_on: row.certification_expiry_date },
       };
     }
@@ -195,6 +201,8 @@ export function checkWeeklyHours(
       code: "MAX_WEEKLY_HOURS",
       severity: "warning",
       message: `Scheduled ${totalHrs.toFixed(1)}h in a rolling 7-day window (max ${config.max_weekly_work_hrs}h).`,
+      i18nKey: "compliance.violations.MAX_WEEKLY_HOURS",
+      i18nParams: { actual: totalHrs.toFixed(1), max: config.max_weekly_work_hrs },
       meta: { total_hrs: totalHrs, max_hrs: config.max_weekly_work_hrs },
     };
   }

@@ -7,7 +7,7 @@ import { StaffPage } from "@/modules/Staff/StaffPage";
 export const Route = createFileRoute("/staff")({
   head: () => ({
     meta: [
-      { title: "Staff \u2014 Hospishift" },
+      { title: "Staff \u2014 HospiShift" },
       { name: "description", content: "Hospital personnel directory." },
     ],
   }),

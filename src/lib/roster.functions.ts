@@ -178,8 +178,8 @@ export interface ReplacementCandidate {
   last_name: string;
   primary_role: string;
   ok: boolean;
-  hard_violations: { code: string; message: string }[];
-  soft_violations: { code: string; message: string }[];
+  hard_violations: { code: string; message: string; i18nKey: string; i18nParams?: Record<string, string | number> }[];
+  soft_violations: { code: string; message: string; i18nKey: string; i18nParams?: Record<string, string | number> }[];
   overtime_score: number;
 }
 
@@ -225,8 +225,8 @@ export const findReplacements = createServerFn({ method: "POST" })
         last_name: c.last_name,
         primary_role: c.primary_role,
         ok: report.ok,
-        hard_violations: report.hardViolations.map((v) => ({ code: v.code, message: v.message })),
-        soft_violations: report.softViolations.map((v) => ({ code: v.code, message: v.message })),
+        hard_violations: report.hardViolations.map((v) => ({ code: v.code, message: v.message, i18nKey: v.i18nKey, i18nParams: v.i18nParams })),
+        soft_violations: report.softViolations.map((v) => ({ code: v.code, message: v.message, i18nKey: v.i18nKey, i18nParams: v.i18nParams })),
         overtime_score: c.accumulated_overtime_month ?? 0,
       });
     }

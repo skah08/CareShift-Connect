@@ -52,7 +52,36 @@ export const createTenant = createServerFn({ method: "POST" })
       _slug: data.slug,
     });
     if (error) throw error;
-    return { tenant_id: tenantId as string };
+    const tid = tenantId as string;
+
+    const now = new Date().toISOString();
+    const defaultTemplates = [
+      { shift_code: "M", start_time: "07:00", end_time: "14:00", is_night_shift: false, allocated_break_minutes: 30 },
+      { shift_code: "P", start_time: "14:00", end_time: "21:00", is_night_shift: false, allocated_break_minutes: 30 },
+      { shift_code: "N", start_time: "21:00", end_time: "07:00", is_night_shift: true, allocated_break_minutes: 45 },
+      { shift_code: "G", start_time: "08:00", end_time: "16:00", is_night_shift: false, allocated_break_minutes: 30 },
+      { shift_code: "TL", start_time: "07:00", end_time: "19:00", is_night_shift: false, allocated_break_minutes: 60 },
+      { shift_code: "TLN", start_time: "19:00", end_time: "07:00", is_night_shift: true, allocated_break_minutes: 60 },
+      { shift_code: "I", start_time: "10:00", end_time: "17:00", is_night_shift: false, allocated_break_minutes: 30 },
+    ];
+
+    const { error: tmplErr } = await supabase.from("shift_templates").insert(
+      defaultTemplates.map((t) => ({ ...t, tenant_id: tid })),
+    );
+    if (tmplErr) throw tmplErr;
+
+    const { error: cfgErr } = await supabase.from("tenant_config").insert({
+      tenant_id: tid,
+      min_daily_rest_hrs: 11,
+      max_weekly_work_hrs: 48,
+      min_weekly_rest_hrs: 35,
+      forbidden_sequence_matrix: { N: ["M", "P", "G", "I", "TL"] },
+      night_shift_window: { start: "22:00", end: "06:00" },
+      auto_approval_peer_swap: false,
+    });
+    if (cfgErr) throw cfgErr;
+
+    return { tenant_id: tid };
   });
 
 export const getTenantConfig = createServerFn({ method: "GET" })

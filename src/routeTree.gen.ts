@@ -18,6 +18,8 @@ import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as CalendarRouteImport } from './routes/calendar'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminTenantsRouteImport } from './routes/admin/tenants'
+import { Route as AdminTemplatesRouteImport } from './routes/admin/templates'
+import { Route as AdminComplianceRouteImport } from './routes/admin/compliance'
 
 const StaffRoute = StaffRouteImport.update({
   id: '/staff',
@@ -64,6 +66,16 @@ const AdminTenantsRoute = AdminTenantsRouteImport.update({
   path: '/admin/tenants',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminTemplatesRoute = AdminTemplatesRouteImport.update({
+  id: '/admin/templates',
+  path: '/admin/templates',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminComplianceRoute = AdminComplianceRouteImport.update({
+  id: '/admin/compliance',
+  path: '/admin/compliance',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -74,6 +86,8 @@ export interface FileRoutesByFullPath {
   '/onboarding': typeof OnboardingRoute
   '/permissions': typeof PermissionsRoute
   '/staff': typeof StaffRoute
+  '/admin/compliance': typeof AdminComplianceRoute
+  '/admin/templates': typeof AdminTemplatesRoute
   '/admin/tenants': typeof AdminTenantsRoute
 }
 export interface FileRoutesByTo {
@@ -85,6 +99,8 @@ export interface FileRoutesByTo {
   '/onboarding': typeof OnboardingRoute
   '/permissions': typeof PermissionsRoute
   '/staff': typeof StaffRoute
+  '/admin/compliance': typeof AdminComplianceRoute
+  '/admin/templates': typeof AdminTemplatesRoute
   '/admin/tenants': typeof AdminTenantsRoute
 }
 export interface FileRoutesById {
@@ -97,6 +113,8 @@ export interface FileRoutesById {
   '/onboarding': typeof OnboardingRoute
   '/permissions': typeof PermissionsRoute
   '/staff': typeof StaffRoute
+  '/admin/compliance': typeof AdminComplianceRoute
+  '/admin/templates': typeof AdminTemplatesRoute
   '/admin/tenants': typeof AdminTenantsRoute
 }
 export interface FileRouteTypes {
@@ -110,6 +128,8 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/permissions'
     | '/staff'
+    | '/admin/compliance'
+    | '/admin/templates'
     | '/admin/tenants'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -121,6 +141,8 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/permissions'
     | '/staff'
+    | '/admin/compliance'
+    | '/admin/templates'
     | '/admin/tenants'
   id:
     | '__root__'
@@ -132,6 +154,8 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/permissions'
     | '/staff'
+    | '/admin/compliance'
+    | '/admin/templates'
     | '/admin/tenants'
   fileRoutesById: FileRoutesById
 }
@@ -144,6 +168,8 @@ export interface RootRouteChildren {
   OnboardingRoute: typeof OnboardingRoute
   PermissionsRoute: typeof PermissionsRoute
   StaffRoute: typeof StaffRoute
+  AdminComplianceRoute: typeof AdminComplianceRoute
+  AdminTemplatesRoute: typeof AdminTemplatesRoute
   AdminTenantsRoute: typeof AdminTenantsRoute
 }
 
@@ -212,6 +238,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminTenantsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/templates': {
+      id: '/admin/templates'
+      path: '/admin/templates'
+      fullPath: '/admin/templates'
+      preLoaderRoute: typeof AdminTemplatesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/compliance': {
+      id: '/admin/compliance'
+      path: '/admin/compliance'
+      fullPath: '/admin/compliance'
+      preLoaderRoute: typeof AdminComplianceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -224,6 +264,8 @@ const rootRouteChildren: RootRouteChildren = {
   OnboardingRoute: OnboardingRoute,
   PermissionsRoute: PermissionsRoute,
   StaffRoute: StaffRoute,
+  AdminComplianceRoute: AdminComplianceRoute,
+  AdminTemplatesRoute: AdminTemplatesRoute,
   AdminTenantsRoute: AdminTenantsRoute,
 }
 export const routeTree = rootRouteImport

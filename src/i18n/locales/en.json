@@ -1,6 +1,6 @@
 {
   "app": {
-    "name": "Hospishift",
+    "name": "HospiShift",
     "tagline": "Hospital Shift Manager"
   },
   "common": {
@@ -24,6 +24,8 @@
     "departments": "Departments",
     "permissions": "Permissions",
     "tenants": "Tenants",
+    "compliance": "Compliance",
+    "templates": "Templates",
     "collapse": "Collapse sidebar",
     "expand": "Expand sidebar"
   },
@@ -118,6 +120,34 @@
     "cost": "Cost centre",
     "colour": "Colour"
   },
+  "permissions": {
+    "title": "Permissions",
+    "subtitle": "Assign or remove permissions for each user in the tenant.",
+    "user": "User",
+    "categories": {
+      "calendar": "Calendar",
+      "employees": "Employees",
+      "departments": "Departments",
+      "leaves": "Leaves & Time Off",
+      "swaps": "Shift Swaps",
+      "permissions": "Permissions",
+      "reports": "Reports"
+    },
+    "labels": {
+      "calendar.view": "View calendar",
+      "calendar.manage": "Manage all shifts",
+      "calendar.manage_department": "Manage department shifts",
+      "employees.view": "View employees",
+      "employees.manage": "Manage employees",
+      "departments.view": "View departments",
+      "departments.manage": "Manage departments",
+      "leaves.manage": "Manage leaves",
+      "leaves.manage_department": "Manage department leaves",
+      "swaps.approve": "Approve shift swaps",
+      "permissions.manage": "Manage user permissions",
+      "reports.view": "View reports"
+    }
+  },
   "roster": {
     "newAssignment": "New assignment",
     "editAssignment": "Edit assignment",
@@ -143,7 +173,7 @@
     "week": "Week"
   },
   "auth": {
-    "signInTitle": "Sign in to Hospishift",
+    "signInTitle": "Sign in to HospiShift",
     "signInSubtitle": "Manage shifts across your hospital.",
     "noAccount": "No account?",
     "hasAccount": "Already have an account?",
@@ -152,5 +182,59 @@
     "orContinueWith": "Or continue with",
     "signInWithGoogle": "Google",
     "signInWithApple": "Apple"
+  },
+  "compliance": {
+    "title": "Compliance Rules",
+    "subtitle": "Configure work-hour and scheduling rules",
+    "notFound": "No compliance config found for this tenant.",
+    "minDailyRest": "Minimum daily rest (hours)",
+    "maxWeeklyWork": "Maximum weekly work (hours)",
+    "forbiddenSequence": "Forbidden shift sequences",
+    "nightShiftWindow": "Night shift window",
+    "autoApproval": "Auto-approve peer-to-peer swaps",
+    "addSequence": "Add sequence",
+    "from": "From",
+    "to": "To",
+    "remove": "Remove",
+    "saved": "Settings saved",
+    "violations": {
+      "DOUBLE_BOOKING": "Employee is already assigned to an overlapping shift in this window.",
+      "DAILY_REST": "Daily rest of {{actual}}h is below the required minimum of {{required}}h.",
+      "FORBIDDEN_SEQUENCE": "Shift sequence {{from}} → {{to}} is forbidden by the ergonomics matrix.",
+      "MISSING_SKILL": "Employee is missing a skill required for this shift slot.",
+      "EXPIRED_CERTIFICATION": "A required certification has expired before the shift date ({{expired_on}}).",
+      "MAX_WEEKLY_HOURS": "Scheduled {{actual}}h in a rolling 7-day window (max {{max}}h)."
+    }
+  },
+  "templates": {
+    "title": "Shift Templates",
+    "subtitle": "Define available shift types for the organisation",
+    "new": "New template",
+    "edit": "Edit template",
+    "empty": "No templates yet.",
+    "shiftCode": "Shift code",
+    "shiftCodePlaceholder": "e.g. M, P, N",
+    "startTime": "Start time",
+    "endTime": "End time",
+    "breakMinutes": "Break (minutes)",
+    "isNight": "Night shift",
+    "night": "Night",
+    "day": "Day",
+    "minBreak": "min break",
+    "updated": "Template updated",
+    "created": "Template created",
+    "deleted": "Template deleted",
+    "deleteTitle": "Delete template?",
+    "deleteDescription": "This will remove this shift template. Existing assignments using this template will not be affected.",
+    "deleteAction": "Delete",
+    "codes": {
+      "M": "Morning",
+      "P": "Afternoon",
+      "N": "Night",
+      "G": "Day / Split",
+      "TL": "Long Shift",
+      "TLN": "Long Night",
+      "I": "Intermediate"
+    }
   }
 }

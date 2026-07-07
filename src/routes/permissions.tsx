@@ -7,8 +7,8 @@ import { PermissionsPage } from "@/modules/Permissions/PermissionsPage";
 export const Route = createFileRoute("/permissions")({
   head: () => ({
     meta: [
-      { title: "Permessi — Hospishift" },
-      { name: "description", content: "Gestione permessi utente." },
+      { title: "Permissions — HospiShift" },
+      { name: "description", content: "Manage user permissions." },
     ],
   }),
   component: () => (

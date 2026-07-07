@@ -49,7 +49,7 @@ export const OnboardingPage = () => {
         <div>
           <h1 className="text-2xl font-semibold">Create your organization</h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Every Hospishift workspace is scoped to a tenant. Create one to continue.
+            Every HospiShift workspace is scoped to a tenant. Create one to continue.
           </p>
         </div>
 

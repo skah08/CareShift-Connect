@@ -7,6 +7,8 @@ export interface ComplianceViolation {
   code: string;
   severity: ComplianceSeverity;
   message: string;
+  i18nKey: string;
+  i18nParams?: Record<string, string | number>;
   meta?: Record<string, string | number | boolean | null>;
 }
 
